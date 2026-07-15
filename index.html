@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎲 로또 번호 추천기</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --bg-gradient:linear-gradient(135deg,#4facfe,#00f2fe);
+    --container-bg:#fff;
+    --container-shadow:rgba(0,0,0,.2);
+    --text-heading:#333;
+    --text-body:#666;
+    --card-bg:#f7f7f7;
+    --card-shadow:rgba(0,0,0,.1);
+    --button-bg:#ff9800;
+    --button-bg-hover:#f57c00;
+    --toggle-bg:rgba(255,255,255,.3);
+    --toggle-border:rgba(255,255,255,.6);
+}
+
+[data-theme="dark"]{
+    --bg-gradient:linear-gradient(135deg,#1f2937,#0f172a);
+    --container-bg:#1e293b;
+    --container-shadow:rgba(0,0,0,.5);
+    --text-heading:#f1f5f9;
+    --text-body:#cbd5e1;
+    --card-bg:#273449;
+    --card-shadow:rgba(0,0,0,.35);
+    --button-bg:#ff9800;
+    --button-bg-hover:#f57c00;
+    --toggle-bg:rgba(255,255,255,.1);
+    --toggle-border:rgba(255,255,255,.3);
+}
+
+body{
+    font-family:'Segoe UI',sans-serif;
+    background:var(--bg-gradient);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:30px;
+    transition:background .3s ease;
+}
+
+.theme-toggle{
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:var(--toggle-bg);
+    border:1px solid var(--toggle-border);
+    color:#fff;
+    padding:10px 16px;
+    border-radius:30px;
+    font-size:15px;
+    cursor:pointer;
+    backdrop-filter:blur(4px);
+    transition:.3s;
+}
+
+.theme-toggle:hover{
+    background:var(--toggle-border);
+}
+
+.container{
+    width:100%;
+    max-width:900px;
+    background:var(--container-bg);
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 15px 40px var(--container-shadow);
+    text-align:center;
+    transition:background .3s ease,box-shadow .3s ease;
+}
+
+h1{
+    color:var(--text-heading);
+    margin-bottom:10px;
+}
+
+p{
+    color:var(--text-body);
+    margin-bottom:30px;
+}
+
+button{
+    background:var(--button-bg);
+    color:white;
+    border:none;
+    padding:15px 40px;
+    border-radius:10px;
+    font-size:18px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:var(--button-bg-hover);
+    transform:scale(1.05);
+}
+
+#numbers{
+    margin-top:35px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:var(--card-bg);
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 5px 15px var(--card-shadow);
+    transition:background .3s ease,box-shadow .3s ease;
+}
+
+.card h2{
+    margin-bottom:15px;
+    color:var(--text-heading);
+    font-size:20px;
+}
+
+.ball-wrap{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.ball{
+    width:55px;
+    height:55px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:20px;
+    font-weight:bold;
+    animation:pop .3s ease;
+}
+
+@keyframes pop{
+    from{
+        transform:scale(0);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+.contact{
+    margin-top:50px;
+    padding-top:35px;
+    border-top:1px solid var(--card-shadow);
+    text-align:left;
+}
+
+.contact h2{
+    color:var(--text-heading);
+    font-size:22px;
+    margin-bottom:8px;
+    text-align:center;
+}
+
+.contact p{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.contact-form{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    max-width:500px;
+    margin:0 auto;
+}
+
+.contact-form label{
+    color:var(--text-heading);
+    font-size:14px;
+    font-weight:bold;
+    margin-bottom:6px;
+    display:block;
+}
+
+.contact-form input,
+.contact-form textarea{
+    width:100%;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--card-shadow);
+    background:var(--card-bg);
+    color:var(--text-heading);
+    font-family:inherit;
+    font-size:15px;
+}
+
+.contact-form textarea{
+    resize:vertical;
+    min-height:110px;
+}
+
+.contact-form button{
+    align-self:center;
+    padding:14px 45px;
+}
+
+.form-status{
+    text-align:center;
+    margin-top:14px;
+    font-size:14px;
+    color:var(--text-body);
+}
+
+.comments{
+    margin-top:50px;
+    padding-top:35px;
+    border-top:1px solid var(--card-shadow);
+    text-align:left;
+}
+
+.comments h2{
+    color:var(--text-heading);
+    font-size:22px;
+    margin-bottom:20px;
+    text-align:center;
+}
+</style>
+
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙 다크모드</button>
+
+<div class="container">
+
+    <h1>🎲 로또 번호 추천기</h1>
+    <p>버튼을 누르면 추천번호 5세트가 생성됩니다.</p>
+
+    <button onclick="generateLotto()">
+        번호 추천받기
+    </button>
+
+    <div id="numbers"></div>
+
+    <div class="contact">
+        <h2>🤝 제휴 문의</h2>
+        <p>제휴 및 협업 관련 문의는 아래 양식으로 보내주세요.</p>
+
+        <form class="contact-form" id="contactForm" action="https://formspree.io/f/xqevrqbk" method="POST">
+
+            <div>
+                <label for="name">이름</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div>
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div>
+                <label for="message">문의 내용</label>
+                <textarea id="message" name="message" required></textarea>
+            </div>
+
+            <button type="submit">문의 보내기</button>
+
+            <p class="form-status" id="formStatus"></p>
+
+        </form>
+    </div>
+
+    <div class="comments">
+        <h2>💬 댓글</h2>
+        <div id="disqus_thread"></div>
+    </div>
+
+</div>
+
+<script>
+
+function getColor(num){
+
+    if(num<=10) return "#fbc400";
+    if(num<=20) return "#69c8f2";
+    if(num<=30) return "#ff7272";
+    if(num<=40) return "#aaaaaa";
+
+    return "#7bc043";
+
+}
+
+function generateOneSet(){
+
+    let numbers=[];
+
+    while(numbers.length<6){
+
+        let n=Math.floor(Math.random()*45)+1;
+
+        if(!numbers.includes(n)){
+            numbers.push(n);
+        }
+
+    }
+
+    return numbers.sort((a,b)=>a-b);
+
+}
+
+function generateLotto(){
+
+    let html="";
+
+    for(let i=1;i<=5;i++){
+
+        let numbers=generateOneSet();
+
+        html+=`
+        <div class="card">
+            <h2>🎟 ${i}번째 추천번호</h2>
+
+            <div class="ball-wrap">
+        `;
+
+        numbers.forEach(num=>{
+
+            html+=`
+            <div class="ball" style="background:${getColor(num)}">
+                ${num}
+            </div>
+            `;
+
+        });
+
+        html+=`
+            </div>
+        </div>
+        `;
+
+    }
+
+    document.getElementById("numbers").innerHTML=html;
+
+}
+
+function applyTheme(theme){
+
+    document.documentElement.setAttribute("data-theme", theme);
+    document.getElementById("themeToggle").textContent = theme === "dark" ? "☀ 화이트모드" : "🌙 다크모드";
+    localStorage.setItem("lotto-theme", theme);
+
+}
+
+function toggleTheme(){
+
+    let current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    applyTheme(current === "dark" ? "light" : "dark");
+
+}
+
+let savedTheme = localStorage.getItem("lotto-theme");
+let systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+applyTheme(savedTheme || (systemPrefersDark ? "dark" : "light"));
+
+// 페이지를 열면 자동으로 5세트 생성
+generateLotto();
+
+document.getElementById("contactForm").addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    let form = e.target;
+    let status = document.getElementById("formStatus");
+    let submitBtn = form.querySelector("button[type=submit]");
+
+    status.textContent = "전송 중...";
+    submitBtn.disabled = true;
+
+    fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { "Accept": "application/json" }
+    })
+    .then(response => {
+        if(response.ok){
+            status.textContent = "문의가 성공적으로 전송되었습니다. 감사합니다!";
+            form.reset();
+        } else {
+            status.textContent = "전송에 실패했습니다. 잠시 후 다시 시도해주세요.";
+        }
+    })
+    .catch(() => {
+        status.textContent = "전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+    });
+
+});
+
+</script>
+
+<script>
+    (function() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://https-mediabridge1-pages-dev.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</body>
+</html>
