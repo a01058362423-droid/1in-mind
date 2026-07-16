@@ -572,8 +572,8 @@ function calcSaju(){
     const [y,m,d] = dateVal.split("-").map(Number);
     const hour = hourVal==="unknown" ? null : Number(hourVal);
 
-    const year = getYearGanZhi(y,m,d);
-    const month = getMonthGanZhi(year.ganIdx, m, d);
+    const year = getYearGanZhi(y,m,d,hour);
+    const month = getMonthGanZhi(year.ganIdx, y, m, d, hour);
     const day = getDayGanZhi(y,m,d,hour);
     const timePillar = hour===null ? null : getHourGanZhi(day.ganIdx, hour);
 
