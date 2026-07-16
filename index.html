@@ -435,29 +435,90 @@ function hashString(str){
     return Math.abs(h);
 }
 
-function getYearGanZhi(y,m,d){
-    let year = y;
-    if(m<2 || (m===2 && d<4)) year -= 1;
+function toJD(y,m,d,hour){
+    let Y=y, M=m;
+    if(M<=2){ Y-=1; M+=12; }
+    const A = Math.floor(Y/100);
+    const B = 2-A+Math.floor(A/4);
+    return Math.floor(365.25*(Y+4716)) + Math.floor(30.6001*(M+1)) + d + B - 1524.5 + hour/24;
+}
+
+// Low-precision solar apparent longitude (Meeus ch.25), accurate to ~0.01deg - enough for day-level solar-term boundaries.
+function solarLongitude(jd){
+    const T = (jd-2451545.0)/36525;
+    const norm = x => ((x%360)+360)%360;
+    const L0 = norm(280.46646 + 36000.76983*T + 0.0003032*T*T);
+    const M = norm(357.52911 + 35999.05029*T - 0.0001537*T*T);
+    const Mr = M*Math.PI/180;
+    const C = (1.914602-0.004817*T-0.000014*T*T)*Math.sin(Mr)
+            + (0.019993-0.000101*T)*Math.sin(2*Mr)
+            + 0.000289*Math.sin(3*Mr);
+    const trueLong = L0+C;
+    const omega = 125.04-1934.136*T;
+    const apparent = trueLong - 0.00569 - 0.00478*Math.sin(omega*Math.PI/180);
+    return norm(apparent);
+}
+
+const SEASON_TERMS = [
+    { m:1, d:6,  lon:285, zhi:1  },
+    { m:2, d:4,  lon:315, zhi:2  },
+    { m:3, d:6,  lon:345, zhi:3  },
+    { m:4, d:5,  lon:15,  zhi:4  },
+    { m:5, d:6,  lon:45,  zhi:5  },
+    { m:6, d:6,  lon:75,  zhi:6  },
+    { m:7, d:7,  lon:105, zhi:7  },
+    { m:8, d:8,  lon:135, zhi:8  },
+    { m:9, d:8,  lon:165, zhi:9  },
+    { m:10,d:8,  lon:195, zhi:10 },
+    { m:11,d:7,  lon:225, zhi:11 },
+    { m:12,d:7,  lon:255, zhi:0  }
+];
+
+function findTermJD(year, term){
+    const guess = toJD(year, term.m, term.d, 12);
+    let lo = guess-10, hi = guess+10;
+    const diffAt = jd => {
+        const diff = solarLongitude(jd) - term.lon;
+        return ((diff+180)%360+360)%360-180;
+    };
+    for(let i=0;i<40;i++){
+        const mid = (lo+hi)/2;
+        if(diffAt(mid) < 0) lo = mid; else hi = mid;
+    }
+    return (lo+hi)/2;
+}
+
+const termCache = {};
+function getYearTerms(year){
+    if(!termCache[year]){
+        termCache[year] = SEASON_TERMS.map(t => ({ zhi:t.zhi, jd:findTermJD(year,t) }));
+    }
+    return termCache[year];
+}
+
+function getYearGanZhi(y,m,d,hour){
+    const inputJD = toJD(y,m,d, hour===null||hour===undefined ? 12 : hour);
+    const ipchunJD = getYearTerms(y).find(t=>t.zhi===2).jd;
+    const year = inputJD < ipchunJD ? y-1 : y;
     const ganIdx = ((year-4)%10+10)%10;
     const jiIdx = ((year-4)%12+12)%12;
     return { ganIdx, jiIdx, sajuYear:year };
 }
 
-function getMonthZhiIndex(m,d){
-    if(m===1) return d>=6 ? 1 : 0;
-    if(m===2 && d<4) return 0;
-    const bounds = [[2,4,2],[3,6,3],[4,5,4],[5,6,5],[6,6,6],[7,7,7],[8,8,8],[9,8,9],[10,8,10],[11,7,11],[12,7,0]];
-    let idx = 2;
-    for(const [bm,bd,zhi] of bounds){
-        if(m>bm || (m===bm && d>=bd)) idx = zhi;
+function getMonthZhiIndex(y,m,d,hour){
+    const inputJD = toJD(y,m,d, hour===null||hour===undefined ? 12 : hour);
+    const terms = getYearTerms(y);
+    let zhi = null;
+    for(const t of terms){
+        if(t.jd <= inputJD) zhi = t.zhi;
     }
-    return idx;
+    return zhi===null ? 0 : zhi;
 }
 
 const WOLGUN_START = { 0:2, 5:2, 1:4, 6:4, 2:6, 7:6, 3:8, 8:8, 4:0, 9:0 };
 
-function getMonthGanZhi(yearGanIdx, m, d){
-    const jiIdx = getMonthZhiIndex(m,d);
+function getMonthGanZhi(yearGanIdx, y, m, d, hour){
+    const jiIdx = getMonthZhiIndex(y,m,d,hour);
     const offset = ZHI_ORDER_FROM_IN.indexOf(jiIdx);
     const ganIdx = (WOLGUN_START[yearGanIdx] + offset) % 10;
     return { ganIdx, jiIdx };
