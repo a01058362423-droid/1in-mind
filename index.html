@@ -68,7 +68,8 @@ body{
     z-index:10;
 }
 
-.top-controls button{
+.top-controls button,
+.top-controls select{
     background:var(--toggle-bg);
     border:1px solid var(--toggle-border);
     color:#fff;
@@ -78,9 +79,15 @@ body{
     cursor:pointer;
     backdrop-filter:blur(4px);
     transition:.3s;
+    font-family:inherit;
 }
 
-.top-controls button:hover{
+.top-controls select option{
+    color:#2c1250;
+}
+
+.top-controls button:hover,
+.top-controls select:hover{
     background:var(--toggle-border);
 }
 
