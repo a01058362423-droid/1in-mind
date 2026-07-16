@@ -723,6 +723,16 @@ const SAMHAP_GROUPS = [ [11,3,7,"목"], [2,6,10,"화"], [5,9,1,"금"], [8,0,4,"�
 const YUKHAP_PAIRS = [[0,1],[2,11],[3,10],[4,9],[5,8],[6,7]];
 const CHUNG_PAIRS = [[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]];
 
+function hasBatchim(char){
+    const code = char.charCodeAt(0) - 0xAC00;
+    if(code<0 || code>11171) return false;
+    return (code%28)!==0;
+}
+
+function josaWaGwa(word){
+    return hasBatchim(word[word.length-1]) ? "과" : "와";
+}
+
 function getJiRelation(z1,z2){
     if(z1===z2) return { type:"same" };
     for(const g of SAMHAP_GROUPS){ if(g.includes(z1) && g.includes(z2)) return { type:"samhap", element:g[3] }; }
