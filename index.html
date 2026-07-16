@@ -422,90 +422,53 @@ h1{
 <script>
 
 const CHEONGAN = ["갑","을","병","정","무","기","경","신","임","계"];
-const CHEONGAN_ROMAN = ["Gap","Eul","Byeong","Jeong","Mu","Gi","Gyeong","Sin","Im","Gye"];
 const CHEONGAN_OHENG = ["목","목","화","화","토","토","금","금","수","수"];
 const JIJI = ["자","축","인","묘","진","사","오","미","신","유","술","해"];
-const JIJI_ROMAN = ["Ja","Chuk","In","Myo","Jin","Sa","O","Mi","Sin","Yu","Sul","Hae"];
 const JIJI_OHENG = ["수","토","목","목","토","화","화","토","금","금","토","수"];
-const JIJI_ANIMAL = ["쥐","소","호랑이","토끼","용","뱀","말","양","원숭이","닭","개","돼지"];
-const JIJI_ANIMAL_EN = ["Rat","Ox","Tiger","Rabbit","Dragon","Snake","Horse","Goat","Monkey","Rooster","Dog","Pig"];
 const OHENG_COLOR = { "목":"#4caf50", "화":"#e5534b", "토":"#c9973b", "금":"#8a8a8a", "수":"#3f8ee8" };
-const OHENG_EN = { "목":"Wood", "화":"Fire", "토":"Earth", "금":"Metal", "수":"Water" };
 const ZHI_ORDER_FROM_IN = [2,3,4,5,6,7,8,9,10,11,0,1];
+const SPACED_LANGS = ["en","vi"];
 
+const LANGUAGES = [{"code": "ko", "label": "한국어"}, {"code": "en", "label": "English"}, {"code": "zh-TW", "label": "繁體中文"}, {"code": "ja", "label": "日本語"}, {"code": "vi", "label": "Tiếng Việt"}];
 const LANG = { current: "ko" };
 
-function ganLabel(idx){ return LANG.current==="ko" ? CHEONGAN[idx] : CHEONGAN_ROMAN[idx]; }
-function jiLabel(idx){ return LANG.current==="ko" ? JIJI[idx] : JIJI_ROMAN[idx]; }
-function ohengLabel(el){ return LANG.current==="ko" ? el : OHENG_EN[el]; }
-function animalLabel(idx){ return LANG.current==="ko" ? JIJI_ANIMAL[idx] : JIJI_ANIMAL_EN[idx]; }
+const GAN_LABELS = {"ko": {"갑": "갑", "을": "을", "병": "병", "정": "정", "무": "무", "기": "기", "경": "경", "신": "신", "임": "임", "계": "계"}, "en": {"갑": "Gap", "을": "Eul", "병": "Byeong", "정": "Jeong", "무": "Mu", "기": "Gi", "경": "Gyeong", "신": "Sin", "임": "Im", "계": "Gye"}, "zh-TW": {"갑": "甲", "을": "乙", "병": "丙", "정": "丁", "무": "戊", "기": "己", "경": "庚", "신": "辛", "임": "壬", "계": "癸"}, "ja": {"갑": "甲", "을": "乙", "병": "丙", "정": "丁", "무": "戊", "기": "己", "경": "庚", "신": "辛", "임": "壬", "계": "癸"}, "vi": {"갑": "Giáp", "을": "Ất", "병": "Bính", "정": "Đinh", "무": "Mậu", "기": "Kỷ", "경": "Canh", "신": "Tân", "임": "Nhâm", "계": "Quý"}};
+const JI_LABELS = {"ko": {"자": "자", "축": "축", "인": "인", "묘": "묘", "진": "진", "사": "사", "오": "오", "미": "미", "신": "신", "유": "유", "술": "술", "해": "해"}, "en": {"자": "Ja", "축": "Chuk", "인": "In", "묘": "Myo", "진": "Jin", "사": "Sa", "오": "O", "미": "Mi", "신": "Sin", "유": "Yu", "술": "Sul", "해": "Hae"}, "zh-TW": {"자": "子", "축": "丑", "인": "寅", "묘": "卯", "진": "辰", "사": "巳", "오": "午", "미": "未", "신": "申", "유": "酉", "술": "戌", "해": "亥"}, "ja": {"자": "子", "축": "丑", "인": "寅", "묘": "卯", "진": "辰", "사": "巳", "오": "午", "미": "未", "신": "申", "유": "酉", "술": "戌", "해": "亥"}, "vi": {"자": "Tý", "축": "Sửu", "인": "Dần", "묘": "Mão", "진": "Thìn", "사": "Tỵ", "오": "Ngọ", "미": "Mùi", "신": "Thân", "유": "Dậu", "술": "Tuất", "해": "Hợi"}};
+const OHENG_NAMES = {"ko": {"목": "목", "화": "화", "토": "토", "금": "금", "수": "수"}, "en": {"목": "Wood", "화": "Fire", "토": "Earth", "금": "Metal", "수": "Water"}, "zh-TW": {"목": "木", "화": "火", "토": "土", "금": "金", "수": "水"}, "ja": {"목": "木", "화": "火", "토": "土", "금": "金", "수": "水"}, "vi": {"목": "Mộc", "화": "Hỏa", "토": "Thổ", "금": "Kim", "수": "Thủy"}};
+const ANIMAL_LABELS = {"ko": {"자": "쥐", "축": "소", "인": "호랑이", "묘": "토끼", "진": "용", "사": "뱀", "오": "말", "미": "양", "신": "원숭이", "유": "닭", "술": "개", "해": "돼지"}, "en": {"자": "Rat", "축": "Ox", "인": "Tiger", "묘": "Rabbit", "진": "Dragon", "사": "Snake", "오": "Horse", "미": "Goat", "신": "Monkey", "유": "Rooster", "술": "Dog", "해": "Pig"}, "zh-TW": {"자": "鼠", "축": "牛", "인": "虎", "묘": "兔", "진": "龍", "사": "蛇", "오": "馬", "미": "羊", "신": "猴", "유": "雞", "술": "狗", "해": "豬"}, "ja": {"자": "鼠", "축": "牛", "인": "虎", "묘": "兎", "진": "龍", "사": "蛇", "오": "馬", "미": "羊", "신": "猿", "유": "鶏", "술": "犬", "해": "猪"}, "vi": {"자": "Chuột", "축": "Trâu", "인": "Hổ", "묘": "Mèo", "진": "Rồng", "사": "Rắn", "오": "Ngựa", "미": "Dê", "신": "Khỉ", "유": "Gà", "술": "Chó", "해": "Heo"}};
 
-const UI_TEXT = {
-    ko: {
-        subtitle: "생년월일시로 나의 명식을 확인하고, 오늘의 운세와 궁합까지 살펴보세요.",
-        tabSaju: "사주판 계산", tabToday: "오늘의 운세", tabMatch: "궁합 보기", tabAi: "AI 해설",
-        sajuDateLabel: "생년월일 (양력)", sajuHourLabel: "태어난 시간", sajuBtn: "사주판 보기",
-        sajuHint: "※ 절기(입춘 등) 경계는 태양 황경 기반으로 정밀 계산됩니다. 다만 출생시간은 2시간 단위로만 입력받기 때문에, 절입 시각이 임박한 경우 약간의 오차가 있을 수 있습니다.",
-        todayBirthLabel: "생년월일 (선택, 입력 시 개인화)", todayBtn: "오늘의 운세 보기",
-        matchName1Label: "이름 A", matchName1Ph: "이름 (선택)", matchDate1Label: "생년월일 A",
-        matchName2Label: "이름 B", matchName2Ph: "이름 (선택)", matchDate2Label: "생년월일 B",
-        matchBtn: "궁합 보기",
-        aiHint: '먼저 "사주판 계산" 탭에서 사주를 계산하면, 그 결과를 바탕으로 해설을 생성합니다. (외부 AI API 없이 규칙 기반으로 자동 생성되는 해설입니다.)',
-        aiBtn: "AI 해설 생성하기",
-        themeDark: "🌙 다크모드", themeLight: "☀ 화이트모드",
-        langToggle: "EN",
-        pillarYear:"년주", pillarMonth:"월주", pillarDay:"일주", pillarHour:"시주", hourUnknownPillar:"시간 미상",
-        sajuEmptyHint: "생년월일을 입력해주세요.",
-        matchEmptyHint: "두 사람의 생년월일을 모두 입력해주세요.",
-        aiEmptyHint: '먼저 "사주판 계산" 탭에서 사주를 계산해주세요.',
-        aiDisclaimer: "※ 외부 AI를 호출하지 않고, 계산된 사주 결과를 바탕으로 규칙 기반 문장을 자동 생성한 해설입니다.",
-        dayMasterShort: "일간"
-    },
-    en: {
-        subtitle: "Enter your date and time of birth to see your Four Pillars chart, today's fortune, and compatibility.",
-        tabSaju: "Saju Chart", tabToday: "Today's Fortune", tabMatch: "Compatibility", tabAi: "AI Reading",
-        sajuDateLabel: "Date of Birth (Solar)", sajuHourLabel: "Time of Birth", sajuBtn: "Calculate Chart",
-        sajuHint: "* Solar-term boundaries (e.g. the start of spring) are precisely calculated from the sun's ecliptic longitude. Since birth time is only collected in 2-hour blocks, there may be a slight margin of error when the exact boundary time is close.",
-        todayBirthLabel: "Date of Birth (optional, personalizes the result)", todayBtn: "Show Today's Fortune",
-        matchName1Label: "Name A", matchName1Ph: "Name (optional)", matchDate1Label: "Date of Birth A",
-        matchName2Label: "Name B", matchName2Ph: "Name (optional)", matchDate2Label: "Date of Birth B",
-        matchBtn: "Check Compatibility",
-        aiHint: 'First calculate your chart in the "Saju Chart" tab - this reading is generated from that result. (Generated with rule-based logic, without calling an external AI API.)',
-        aiBtn: "Generate AI Reading",
-        themeDark: "🌙 Dark", themeLight: "☀ Light",
-        langToggle: "한국어",
-        pillarYear:"Year", pillarMonth:"Month", pillarDay:"Day", pillarHour:"Hour", hourUnknownPillar:"Unknown",
-        sajuEmptyHint: "Please enter your date of birth.",
-        matchEmptyHint: "Please enter both people's dates of birth.",
-        aiEmptyHint: 'Please calculate your chart in the "Saju Chart" tab first.',
-        aiDisclaimer: "* This reading is auto-generated from your calculated chart using rule-based logic, without calling any external AI.",
-        dayMasterShort: "Day Master"
-    }
-};
+function ganLabel(idx){ return GAN_LABELS[LANG.current][CHEONGAN[idx]]; }
+function jiLabel(idx){ return JI_LABELS[LANG.current][JIJI[idx]]; }
+function ohengLabel(el){ return OHENG_NAMES[LANG.current][el]; }
+function animalLabel(idx){ return ANIMAL_LABELS[LANG.current][JIJI[idx]]; }
+
+function fillTemplate(str, vars){
+    let out = str;
+    for(const k in vars){ out = out.split("{"+k+"}").join(vars[k]); }
+    return out;
+}
+
+const UI_TEXT = {"ko": {"subtitle": "생년월일시로 나의 명식을 확인하고, 오늘의 운세와 궁합까지 살펴보세요.", "tabSaju": "사주판 계산", "tabToday": "오늘의 운세", "tabMatch": "궁합 보기", "tabAi": "AI 해설", "sajuDateLabel": "생년월일 (양력)", "sajuHourLabel": "태어난 시간", "sajuBtn": "사주판 보기", "sajuHint": "※ 절기(입춘 등) 경계는 태양 황경 기반으로 정밀 계산됩니다. 다만 출생시간은 2시간 단위로만 입력받기 때문에, 절입 시각이 임박한 경우 약간의 오차가 있을 수 있습니다.", "todayBirthLabel": "생년월일 (선택, 입력 시 개인화)", "todayBtn": "오늘의 운세 보기", "matchName1Label": "이름 A", "matchName1Ph": "이름 (선택)", "matchDate1Label": "생년월일 A", "matchName2Label": "이름 B", "matchName2Ph": "이름 (선택)", "matchDate2Label": "생년월일 B", "matchBtn": "궁합 보기", "aiHint": "먼저 \"사주판 계산\" 탭에서 사주를 계산하면, 그 결과를 바탕으로 해설을 생성합니다. (외부 AI API 없이 규칙 기반으로 자동 생성되는 해설입니다.)", "aiBtn": "AI 해설 생성하기", "themeDark": "🌙 다크모드", "themeLight": "☀ 화이트모드", "pillarYear": "년주", "pillarMonth": "월주", "pillarDay": "일주", "pillarHour": "시주", "hourUnknownPillar": "시간 미상", "sajuEmptyHint": "생년월일을 입력해주세요.", "matchEmptyHint": "두 사람의 생년월일을 모두 입력해주세요.", "aiEmptyHint": "먼저 \"사주판 계산\" 탭에서 사주를 계산해주세요.", "aiDisclaimer": "※ 외부 AI를 호출하지 않고, 계산된 사주 결과를 바탕으로 규칙 기반 문장을 자동 생성한 해설입니다.", "dayMasterShort": "일간"}, "en": {"subtitle": "Enter your date and time of birth to see your Four Pillars chart, today's fortune, and compatibility.", "tabSaju": "Saju Chart", "tabToday": "Today's Fortune", "tabMatch": "Compatibility", "tabAi": "AI Reading", "sajuDateLabel": "Date of Birth (Solar)", "sajuHourLabel": "Time of Birth", "sajuBtn": "Calculate Chart", "sajuHint": "* Solar-term boundaries (e.g. the start of spring) are precisely calculated from the sun's ecliptic longitude. Since birth time is only collected in 2-hour blocks, there may be a slight margin of error when the exact boundary time is close.", "todayBirthLabel": "Date of Birth (optional, personalizes the result)", "todayBtn": "Show Today's Fortune", "matchName1Label": "Name A", "matchName1Ph": "Name (optional)", "matchDate1Label": "Date of Birth A", "matchName2Label": "Name B", "matchName2Ph": "Name (optional)", "matchDate2Label": "Date of Birth B", "matchBtn": "Check Compatibility", "aiHint": "First calculate your chart in the \"Saju Chart\" tab - this reading is generated from that result. (Generated with rule-based logic, without calling an external AI API.)", "aiBtn": "Generate AI Reading", "themeDark": "🌙 Dark", "themeLight": "☀ Light", "pillarYear": "Year", "pillarMonth": "Month", "pillarDay": "Day", "pillarHour": "Hour", "hourUnknownPillar": "Unknown", "sajuEmptyHint": "Please enter your date of birth.", "matchEmptyHint": "Please enter both people's dates of birth.", "aiEmptyHint": "Please calculate your chart in the \"Saju Chart\" tab first.", "aiDisclaimer": "* This reading is auto-generated from your calculated chart using rule-based logic, without calling any external AI.", "dayMasterShort": "Day Master"}, "zh-TW": {"subtitle": "免費線上八字算命——四柱命盤、今日運勢、姻緣配對，一次掌握", "tabSaju": "八字命盤", "tabToday": "今日運勢", "tabMatch": "姻緣配對", "tabAi": "AI解讀", "sajuDateLabel": "出生日期", "sajuHourLabel": "出生時辰", "sajuBtn": "開始排盤", "sajuHint": "請輸入您的出生日期與時辰，即可查看專屬八字命盤", "todayBirthLabel": "出生日期（選填）", "todayBtn": "查看今日運勢", "matchName1Label": "姓名一", "matchName1Ph": "請輸入姓名", "matchDate1Label": "出生日期一", "matchName2Label": "姓名二", "matchName2Ph": "請輸入姓名", "matchDate2Label": "出生日期二", "matchBtn": "開始配對", "aiHint": "請先完成八字排盤，即可獲得AI風格的命盤解讀", "aiBtn": "產生AI解讀", "themeDark": "深色模式", "themeLight": "淺色模式", "langToggle": "語言", "pillarYear": "年柱", "pillarMonth": "月柱", "pillarDay": "日柱", "pillarHour": "時柱", "hourUnknownPillar": "時辰不詳", "sajuEmptyHint": "請輸入出生日期以查看您的八字命盤", "matchEmptyHint": "請輸入雙方資料以查看配對結果", "aiEmptyHint": "請先完成八字排盤，才能查看AI解讀", "aiDisclaimer": "本解讀為系統依命理規則自動生成，僅供參考娛樂，請勿作為人生重大決策的唯一依據。", "dayMasterShort": "日主"}, "ja": {"subtitle": "生年月日と出生時間を入力すると、あなたの命式（四柱推命チャート）、今日の運勢、そして相性まで確認できます。", "tabSaju": "命式計算", "tabToday": "今日の運勢", "tabMatch": "相性診断", "tabAi": "AI鑑定", "sajuDateLabel": "生年月日（新暦）", "sajuHourLabel": "生まれた時間", "sajuBtn": "命式を見る", "sajuHint": "※節気（立春など）の境界は太陽黄経に基づいて精密に計算されます。ただし出生時間は2時間単位でのご入力となるため、節入りの時刻が近い場合は多少の誤差が生じることがあります。", "todayBirthLabel": "生年月日（任意・入力するとパーソナライズされます）", "todayBtn": "今日の運勢を見る", "matchName1Label": "お名前A", "matchName1Ph": "お名前（任意）", "matchDate1Label": "生年月日A", "matchName2Label": "お名前B", "matchName2Ph": "お名前（任意）", "matchDate2Label": "生年月日B", "matchBtn": "相性を見る", "aiHint": "まず「命式計算」タブで命式を計算すると、その結果をもとに鑑定文が生成されます。（外部のAI APIを呼び出さず、ルールベースで自動生成される鑑定文です。）", "aiBtn": "AI鑑定を生成する", "themeDark": "🌙 ダークモード", "themeLight": "☀ ライトモード", "langToggle": "한국어", "pillarYear": "年柱", "pillarMonth": "月柱", "pillarDay": "日柱", "pillarHour": "時柱", "hourUnknownPillar": "時刻不明", "sajuEmptyHint": "生年月日を入力してください。", "matchEmptyHint": "お二人の生年月日をどちらも入力してください。", "aiEmptyHint": "まず「命式計算」タブで命式を計算してください。", "aiDisclaimer": "※外部のAIを呼び出さず、計算された命式の結果をもとにルールベースで自動生成された鑑定文です。", "dayMasterShort": "日主"}, "vi": {"subtitle": "Khám phá vận mệnh qua Tứ Trụ Bát Tự", "tabSaju": "Lá Số", "tabToday": "Vận Hôm Nay", "tabMatch": "Hợp Tuổi", "tabAi": "Luận Giải AI", "sajuDateLabel": "Ngày sinh", "sajuHourLabel": "Giờ sinh", "sajuBtn": "Xem Lá Số", "sajuHint": "Nhập ngày và giờ sinh của bạn để xem đầy đủ Tứ Trụ (Năm - Tháng - Ngày - Giờ) cùng biểu đồ Ngũ Hành.", "todayBirthLabel": "Ngày sinh của bạn", "todayBtn": "Xem Vận Hôm Nay", "matchName1Label": "Tên người thứ nhất", "matchName1Ph": "Nhập tên của bạn", "matchDate1Label": "Ngày sinh người thứ nhất", "matchName2Label": "Tên người thứ hai", "matchName2Ph": "Nhập tên đối phương", "matchDate2Label": "Ngày sinh người thứ hai", "matchBtn": "Xem Độ Hợp", "aiHint": "Nhấn nút bên dưới để nhận bài luận giải chi tiết, tổng hợp từ toàn bộ lá số của bạn.", "aiBtn": "Xem Luận Giải", "themeDark": "Tối", "themeLight": "Sáng", "langToggle": "Ngôn ngữ", "pillarYear": "Trụ Năm", "pillarMonth": "Trụ Tháng", "pillarDay": "Trụ Ngày", "pillarHour": "Trụ Giờ", "hourUnknownPillar": "Không rõ", "sajuEmptyHint": "Vui lòng nhập ngày sinh để xem lá số Tứ Trụ của bạn.", "matchEmptyHint": "Vui lòng nhập thông tin của cả hai người để xem mức độ hợp tuổi.", "aiEmptyHint": "Vui lòng xem lá số ở tab Lá Số trước để nhận luận giải AI.", "aiDisclaimer": "* Nội dung chỉ mang tính chất tham khảo và giải trí, không thay thế cho các quyết định quan trọng trong cuộc sống.", "dayMasterShort": "Nhật Chủ"}};
 
 function t(key){ return UI_TEXT[LANG.current][key]; }
 
-const HOUR_OPTIONS = [
-    { value:"unknown", ko:"모름", en:"Unknown" },
-    { value:"0",  ko:"자시 (23:00~00:59)", en:"Ja-si (23:00-00:59)" },
-    { value:"2",  ko:"축시 (01:00~02:59)", en:"Chuk-si (01:00-02:59)" },
-    { value:"4",  ko:"인시 (03:00~04:59)", en:"In-si (03:00-04:59)" },
-    { value:"6",  ko:"묘시 (05:00~06:59)", en:"Myo-si (05:00-06:59)" },
-    { value:"8",  ko:"진시 (07:00~08:59)", en:"Jin-si (07:00-08:59)" },
-    { value:"10", ko:"사시 (09:00~10:59)", en:"Sa-si (09:00-10:59)" },
-    { value:"12", ko:"오시 (11:00~12:59)", en:"O-si (11:00-12:59)" },
-    { value:"14", ko:"미시 (13:00~14:59)", en:"Mi-si (13:00-14:59)" },
-    { value:"16", ko:"신시 (15:00~16:59)", en:"Sin-si (15:00-16:59)" },
-    { value:"18", ko:"유시 (17:00~18:59)", en:"Yu-si (17:00-18:59)" },
-    { value:"20", ko:"술시 (19:00~20:59)", en:"Sul-si (19:00-20:59)" },
-    { value:"22", ko:"해시 (21:00~22:59)", en:"Hae-si (21:00-22:59)" }
-];
+const HOUR_VALUES = ["unknown", "0", "2", "4", "6", "8", "10", "12", "14", "16", "18", "20", "22"];
+const HOUR_OPTIONS_DATA = {"ko": {"unknown": "모름", "0": "자시 (23:00~00:59)", "2": "축시 (01:00~02:59)", "4": "인시 (03:00~04:59)", "6": "묘시 (05:00~06:59)", "8": "진시 (07:00~08:59)", "10": "사시 (09:00~10:59)", "12": "오시 (11:00~12:59)", "14": "미시 (13:00~14:59)", "16": "신시 (15:00~16:59)", "18": "유시 (17:00~18:59)", "20": "술시 (19:00~20:59)", "22": "해시 (21:00~22:59)"}, "en": {"unknown": "Unknown", "0": "Ja-si (23:00-00:59)", "2": "Chuk-si (01:00-02:59)", "4": "In-si (03:00-04:59)", "6": "Myo-si (05:00-06:59)", "8": "Jin-si (07:00-08:59)", "10": "Sa-si (09:00-10:59)", "12": "O-si (11:00-12:59)", "14": "Mi-si (13:00-14:59)", "16": "Sin-si (15:00-16:59)", "18": "Yu-si (17:00-18:59)", "20": "Sul-si (19:00-20:59)", "22": "Hae-si (21:00-22:59)"}, "zh-TW": {"0": "子時 (23:00-00:59)", "2": "丑時 (01:00-02:59)", "4": "寅時 (03:00-04:59)", "6": "卯時 (05:00-06:59)", "8": "辰時 (07:00-08:59)", "10": "巳時 (09:00-10:59)", "12": "午時 (11:00-12:59)", "14": "未時 (13:00-14:59)", "16": "申時 (15:00-16:59)", "18": "酉時 (17:00-18:59)", "20": "戌時 (19:00-20:59)", "22": "亥時 (21:00-22:59)", "unknown": "時辰不詳"}, "ja": {"0": "子の刻（23:00〜00:59）", "2": "丑の刻（01:00〜02:59）", "4": "寅の刻（03:00〜04:59）", "6": "卯の刻（05:00〜06:59）", "8": "辰の刻（07:00〜08:59）", "10": "巳の刻（09:00〜10:59）", "12": "午の刻（11:00〜12:59）", "14": "未の刻（13:00〜14:59）", "16": "申の刻（15:00〜16:59）", "18": "酉の刻（17:00〜18:59）", "20": "戌の刻（19:00〜20:59）", "22": "亥の刻（21:00〜22:59）", "unknown": "不明"}, "vi": {"0": "Giờ Tý (23:00–00:59)", "2": "Giờ Sửu (01:00–02:59)", "4": "Giờ Dần (03:00–04:59)", "6": "Giờ Mão (05:00–06:59)", "8": "Giờ Thìn (07:00–08:59)", "10": "Giờ Tỵ (09:00–10:59)", "12": "Giờ Ngọ (11:00–12:59)", "14": "Giờ Mùi (13:00–14:59)", "16": "Giờ Thân (15:00–16:59)", "18": "Giờ Dậu (17:00–18:59)", "20": "Giờ Tuất (19:00–20:59)", "22": "Giờ Hợi (21:00–22:59)", "unknown": "Không rõ giờ sinh"}};
 
 function renderHourOptions(){
     const sel = document.getElementById("sajuHour");
     const prev = sel.value;
-    sel.innerHTML = HOUR_OPTIONS.map(o => `<option value="${o.value}">${o[LANG.current]}</option>`).join("");
+    const labels = HOUR_OPTIONS_DATA[LANG.current];
+    sel.innerHTML = HOUR_VALUES.map(v => `<option value="${v}">${labels[v]}</option>`).join("");
     if(prev) sel.value = prev;
+}
+
+function renderLangSelect(){
+    const sel = document.getElementById("langSelect");
+    if(sel.options.length === 0){
+        sel.innerHTML = LANGUAGES.map(l => `<option value="${l.code}">${l.label}</option>`).join("");
+    }
+    sel.value = LANG.current;
 }
 
 function applyStaticText(){
@@ -529,15 +492,15 @@ function applyStaticText(){
     document.getElementById("matchBtn").textContent = t("matchBtn");
     document.getElementById("aiHint").textContent = t("aiHint");
     document.getElementById("aiBtn").textContent = t("aiBtn");
-    document.getElementById("langToggle").textContent = t("langToggle");
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     document.getElementById("themeToggle").textContent = isDark ? t("themeLight") : t("themeDark");
     document.getElementById("htmlRoot").lang = LANG.current;
     renderHourOptions();
+    renderLangSelect();
 }
 
-function toggleLang(){
-    LANG.current = LANG.current === "ko" ? "en" : "ko";
+function setLang(code){
+    LANG.current = code;
     localStorage.setItem("saju-lang", LANG.current);
     applyStaticText();
     ["sajuResult","todayResult","matchResult","aiResult"].forEach(id=>{
@@ -609,14 +572,14 @@ function findTermJD(year, term){
 const termCache = {};
 function getYearTerms(year){
     if(!termCache[year]){
-        termCache[year] = SEASON_TERMS.map(t => ({ zhi:t.zhi, jd:findTermJD(year,t) }));
+        termCache[year] = SEASON_TERMS.map(term => ({ zhi:term.zhi, jd:findTermJD(year,term) }));
     }
     return termCache[year];
 }
 
 function getYearGanZhi(y,m,d,hour){
     const inputJD = toJD(y,m,d, hour===null||hour===undefined ? 12 : hour);
-    const ipchunJD = getYearTerms(y).find(t=>t.zhi===2).jd;
+    const ipchunJD = getYearTerms(y).find(term=>term.zhi===2).jd;
     const year = inputJD < ipchunJD ? y-1 : y;
     const ganIdx = ((year-4)%10+10)%10;
     const jiIdx = ((year-4)%12+12)%12;
@@ -668,7 +631,8 @@ function getHourGanZhi(dayGanIdx, hour){
 }
 
 function pillarText(ganIdx, jiIdx){
-    return LANG.current==="ko" ? (CHEONGAN[ganIdx]+JIJI[jiIdx]) : (CHEONGAN_ROMAN[ganIdx]+"-"+JIJI_ROMAN[jiIdx]);
+    const g = ganLabel(ganIdx), j = jiLabel(jiIdx);
+    return SPACED_LANGS.includes(LANG.current) ? (g+"-"+j) : (g+j);
 }
 
 function pillarOheng(ganIdx, jiIdx){
@@ -750,122 +714,19 @@ function calcSaju(){
 }
 
 const CATEGORY_KEYS = ["총운","애정운","재물운","건강운","직장운"];
-const CATEGORY_LABEL = {
-    "총운": { ko:"총운", en:"Overall" },
-    "애정운": { ko:"애정운", en:"Love" },
-    "재물운": { ko:"재물운", en:"Money" },
-    "건강운": { ko:"건강운", en:"Health" },
-    "직장운": { ko:"직장운", en:"Work" }
-};
-
-const FORTUNE_TEXTS = {
-    ko: {
-        "총운": [
-            "차분하게 하루를 시작하면 예상보다 좋은 흐름을 만날 수 있는 날입니다.",
-            "작은 변화가 큰 기회로 이어질 수 있으니 주변을 잘 살펴보세요.",
-            "무리한 결정보다는 신중한 선택이 유리한 하루입니다.",
-            "그동안 미뤄둔 일을 처리하기 좋은 흐름이 찾아옵니다.",
-            "주변 사람의 조언이 뜻밖의 도움이 되는 날입니다.",
-            "평소보다 직감이 예리해지는 시기이니 믿고 따라가도 좋습니다.",
-            "서두르지 않고 하나씩 처리하면 무난하게 흘러가는 하루입니다.",
-            "새로운 시도를 해보기에 나쁘지 않은 기운이 감돕니다.",
-            "마음의 여유를 가지면 뜻밖의 좋은 소식이 들려올 수 있습니다.",
-            "오늘은 평소의 리듬을 지키는 것이 가장 큰 행운입니다."
-        ],
-        "애정운": [
-            "솔직한 대화가 관계를 한층 더 가깝게 만들어줍니다.",
-            "혼자만의 시간을 갖는 것도 관계에 도움이 되는 날입니다.",
-            "작은 배려가 상대에게 크게 다가가는 하루입니다.",
-            "새로운 인연의 기운이 은은하게 감지됩니다.",
-            "감정 기복을 조절하면 관계가 한결 부드러워집니다.",
-            "먼저 다가가는 용기가 좋은 결과로 이어질 수 있습니다.",
-            "지나간 인연에 미련보다는 현재에 집중하는 것이 좋습니다.",
-            "표현하지 않으면 전해지지 않는 하루, 마음을 표현해보세요."
-        ],
-        "재물운": [
-            "충동적인 지출은 피하고 계획적인 소비가 필요한 날입니다.",
-            "생각지 못한 곳에서 작은 이득이 생길 수 있습니다.",
-            "투자보다는 저축에 집중하는 것이 유리한 흐름입니다.",
-            "동료나 지인과의 금전 거래는 신중히 접근하세요.",
-            "꾸준한 노력이 재물운으로 서서히 이어지는 시기입니다.",
-            "예상치 못한 지출이 생길 수 있으니 여유 자금을 준비하세요.",
-            "정보를 잘 살피면 좋은 기회를 포착할 수 있습니다."
-        ],
-        "건강운": [
-            "무리한 일정보다는 충분한 휴식이 필요한 하루입니다.",
-            "가벼운 산책이나 스트레칭이 컨디션 관리에 도움이 됩니다.",
-            "과식이나 과음은 피하는 것이 좋은 시기입니다.",
-            "수면의 질을 높이면 전반적인 컨디션이 좋아집니다.",
-            "스트레스 관리가 오늘의 가장 중요한 건강 포인트입니다.",
-            "몸의 신호에 귀 기울이면 큰 탈 없이 지나가는 하루입니다."
-        ],
-        "직장운": [
-            "협업에서 좋은 성과가 나올 수 있는 흐름입니다.",
-            "묵묵히 해온 노력을 주변에서 알아봐 주는 날입니다.",
-            "새로운 업무 제안이 들어올 수 있으니 열린 마음을 가지세요.",
-            "동료와의 의견 차이는 대화로 잘 풀어나갈 수 있습니다.",
-            "계획을 재정비하기 좋은 시기이니 일정을 점검해보세요.",
-            "작은 실수에 너무 얽매이지 않아도 되는 하루입니다."
-        ]
-    },
-    en: {
-        "총운": [
-            "Starting the day calmly may lead to a better flow than expected.",
-            "A small change could turn into a big opportunity, so keep an eye on your surroundings.",
-            "A cautious choice serves you better than a rash decision today.",
-            "A good flow arrives for tackling tasks you've been putting off.",
-            "Advice from someone close could turn out to be unexpectedly helpful.",
-            "Your intuition is sharper than usual, so it's a good day to trust it.",
-            "Handling things one at a time without rushing keeps the day running smoothly.",
-            "The energy favors trying something new today.",
-            "Staying relaxed may bring unexpectedly good news.",
-            "Sticking to your usual rhythm is today's biggest source of luck."
-        ],
-        "애정운": [
-            "An honest conversation brings you closer to your partner.",
-            "Spending some time alone can actually help the relationship today.",
-            "A small gesture of consideration means a lot to the other person today.",
-            "A subtle sign of a new connection is in the air.",
-            "Keeping your emotions steady smooths things out in your relationship.",
-            "Taking the first step could lead to a good outcome.",
-            "Focus on the present rather than lingering on a past relationship.",
-            "Feelings unspoken go unnoticed today - try expressing your heart."
-        ],
-        "재물운": [
-            "Avoid impulsive spending and stick to a plan today.",
-            "A small gain may come from an unexpected source.",
-            "Saving is favored over investing in the current flow.",
-            "Be cautious with money matters involving colleagues or friends.",
-            "Steady effort is gradually paying off financially.",
-            "An unexpected expense may come up, so keep some funds in reserve.",
-            "Paying close attention to information could reveal a good opportunity."
-        ],
-        "건강운": [
-            "Rest is more important than a packed schedule today.",
-            "A light walk or stretching helps keep your condition in check.",
-            "It's best to avoid overeating or drinking too much.",
-            "Better sleep quality improves your overall condition.",
-            "Managing stress is today's key health point.",
-            "Listening to your body's signals helps you get through the day without trouble."
-        ],
-        "직장운": [
-            "Collaboration is likely to bring good results.",
-            "Quiet, steady effort gets noticed by those around you today.",
-            "Stay open-minded, as a new work proposal may come your way.",
-            "Differences with a coworker can be resolved through conversation.",
-            "A good time to reorganize your plans - review your schedule.",
-            "No need to dwell too much on small mistakes today."
-        ]
-    }
-};
+const CATEGORY_LABEL = {"총운": {"ko": "총운", "en": "Overall", "zh-TW": "整體運", "ja": "総合運", "vi": "Tổng Quan"}, "애정운": {"ko": "애정운", "en": "Love", "zh-TW": "愛情運", "ja": "恋愛運", "vi": "Tình Duyên"}, "재물운": {"ko": "재물운", "en": "Money", "zh-TW": "財運", "ja": "金運", "vi": "Tài Lộc"}, "건강운": {"ko": "건강운", "en": "Health", "zh-TW": "健康運", "ja": "健康運", "vi": "Sức Khỏe"}, "직장운": {"ko": "직장운", "en": "Work", "zh-TW": "事業運", "ja": "仕事運", "vi": "Công Việc"}};
+const FORTUNE_TEXTS = {"ko": {"총운": ["차분하게 하루를 시작하면 예상보다 좋은 흐름을 만날 수 있는 날입니다.", "작은 변화가 큰 기회로 이어질 수 있으니 주변을 잘 살펴보세요.", "무리한 결정보다는 신중한 선택이 유리한 하루입니다.", "그동안 미뤄둔 일을 처리하기 좋은 흐름이 찾아옵니다.", "주변 사람의 조언이 뜻밖의 도움이 되는 날입니다.", "평소보다 직감이 예리해지는 시기이니 믿고 따라가도 좋습니다.", "서두르지 않고 하나씩 처리하면 무난하게 흘러가는 하루입니다.", "새로운 시도를 해보기에 나쁘지 않은 기운이 감돕니다.", "마음의 여유를 가지면 뜻밖의 좋은 소식이 들려올 수 있습니다.", "오늘은 평소의 리듬을 지키는 것이 가장 큰 행운입니다."], "애정운": ["솔직한 대화가 관계를 한층 더 가깝게 만들어줍니다.", "혼자만의 시간을 갖는 것도 관계에 도움이 되는 날입니다.", "작은 배려가 상대에게 크게 다가가는 하루입니다.", "새로운 인연의 기운이 은은하게 감지됩니다.", "감정 기복을 조절하면 관계가 한결 부드러워집니다.", "먼저 다가가는 용기가 좋은 결과로 이어질 수 있습니다.", "지나간 인연에 미련보다는 현재에 집중하는 것이 좋습니다.", "표현하지 않으면 전해지지 않는 하루, 마음을 표현해보세요."], "재물운": ["충동적인 지출은 피하고 계획적인 소비가 필요한 날입니다.", "생각지 못한 곳에서 작은 이득이 생길 수 있습니다.", "투자보다는 저축에 집중하는 것이 유리한 흐름입니다.", "동료나 지인과의 금전 거래는 신중히 접근하세요.", "꾸준한 노력이 재물운으로 서서히 이어지는 시기입니다.", "예상치 못한 지출이 생길 수 있으니 여유 자금을 준비하세요.", "정보를 잘 살피면 좋은 기회를 포착할 수 있습니다."], "건강운": ["무리한 일정보다는 충분한 휴식이 필요한 하루입니다.", "가벼운 산책이나 스트레칭이 컨디션 관리에 도움이 됩니다.", "과식이나 과음은 피하는 것이 좋은 시기입니다.", "수면의 질을 높이면 전반적인 컨디션이 좋아집니다.", "스트레스 관리가 오늘의 가장 중요한 건강 포인트입니다.", "몸의 신호에 귀 기울이면 큰 탈 없이 지나가는 하루입니다."], "직장운": ["협업에서 좋은 성과가 나올 수 있는 흐름입니다.", "묵묵히 해온 노력을 주변에서 알아봐 주는 날입니다.", "새로운 업무 제안이 들어올 수 있으니 열린 마음을 가지세요.", "동료와의 의견 차이는 대화로 잘 풀어나갈 수 있습니다.", "계획을 재정비하기 좋은 시기이니 일정을 점검해보세요.", "작은 실수에 너무 얽매이지 않아도 되는 하루입니다."]}, "en": {"총운": ["Starting the day calmly may lead to a better flow than expected.", "A small change could turn into a big opportunity, so keep an eye on your surroundings.", "A cautious choice serves you better than a rash decision today.", "A good flow arrives for tackling tasks you've been putting off.", "Advice from someone close could turn out to be unexpectedly helpful.", "Your intuition is sharper than usual, so it's a good day to trust it.", "Handling things one at a time without rushing keeps the day running smoothly.", "The energy favors trying something new today.", "Staying relaxed may bring unexpectedly good news.", "Sticking to your usual rhythm is today's biggest source of luck."], "애정운": ["An honest conversation brings you closer to your partner.", "Spending some time alone can actually help the relationship today.", "A small gesture of consideration means a lot to the other person today.", "A subtle sign of a new connection is in the air.", "Keeping your emotions steady smooths things out in your relationship.", "Taking the first step could lead to a good outcome.", "Focus on the present rather than lingering on a past relationship.", "Feelings unspoken go unnoticed today - try expressing your heart."], "재물운": ["Avoid impulsive spending and stick to a plan today.", "A small gain may come from an unexpected source.", "Saving is favored over investing in the current flow.", "Be cautious with money matters involving colleagues or friends.", "Steady effort is gradually paying off financially.", "An unexpected expense may come up, so keep some funds in reserve.", "Paying close attention to information could reveal a good opportunity."], "건강운": ["Rest is more important than a packed schedule today.", "A light walk or stretching helps keep your condition in check.", "It's best to avoid overeating or drinking too much.", "Better sleep quality improves your overall condition.", "Managing stress is today's key health point.", "Listening to your body's signals helps you get through the day without trouble."], "직장운": ["Collaboration is likely to bring good results.", "Quiet, steady effort gets noticed by those around you today.", "Stay open-minded, as a new work proposal may come your way.", "Differences with a coworker can be resolved through conversation.", "A good time to reorganize your plans - review your schedule.", "No need to dwell too much on small mistakes today."]}, "zh-TW": {"총운": ["今天整體運勢相當不錯，做什麼事都能順順利利，不妨把握機會勇敢嘗試。", "今天的你狀態穩定、處理事情條理分明，很適合推進重要計畫。", "今天可能會遇到一些小波折，凡事多一份耐心，很快就能雨過天青。", "今天貴人運旺盛，身邊的人會給你許多實質的幫助，記得心存感激。", "今天直覺特別敏銳，跟著感覺走，往往能做出正確的判斷。", "今天適合沉澱心情、好好休息，不必勉強自己做太多事。", "今天人際互動頻繁，多與人交流能為你帶來意想不到的好機會。", "今天運勢平穩，按部就班完成該做的事，就是最好的安排。", "今天適合檢視過去的計畫，適時調整方向會讓接下來更順利。", "今天充滿好奇心與行動力，勇於踏出舒適圈會帶來新的收穫。"], "애정운": ["單身的你今天桃花運旺盛，主動出擊有機會遇見心動的對象。", "有伴侶的你今天感情升溫，一句貼心的話就能拉近彼此距離。", "今天適合安排一場約會，浪漫的氣氛能為感情加分不少。", "感情中若有誤會，今天是個溝通化解的好時機，別再悶著不說。", "今天你的魅力指數上升，容易吸引異性的注意與好感。", "單身的你不妨多參加社交場合，緣分可能就在轉角等你。", "今天感情運稍嫌平淡，不妨主動製造一些小驚喜來加溫。", "今天適合靜下心聆聽對方的心聲，用心經營會讓感情更加穩固。"], "재물운": ["今天財運亨通，正財偏財都有不錯的進帳機會。", "今天適合理性理財，衝動消費容易讓荷包大失血，要多留意。", "今天可能有意外的收入或好消息，值得期待。", "今天投資理財宜穩健為主，避免躁進，才能穩穩守住財富。", "今天工作上的努力容易被看見，也可能帶來加薪或獎金的機會。", "今天花錢要量力而為，建議記帳掌握收支狀況，避免超支。", "今天適合規劃長期的理財計畫，一步一腳印會為未來累積實力。"], "건강운": ["今天精神狀態不錯、體力充沛，適合安排一些戶外活動。", "今天要多注意睡眠品質，早點休息能讓身體恢復得更好。", "今天腸胃比較敏感，飲食上宜清淡，避免生冷刺激的食物。", "今天適合放鬆身心，來場舒展筋骨的運動能舒緩壓力。", "今天容易感到疲倦，別忘了適時休息，別把自己逼得太緊。", "今天整體健康狀況穩定，維持規律作息就能保持良好狀態。"], "직장운": ["今天工作效率極佳，手上的任務都能順利完成，值得肯定自己。", "今天適合與同事或主管溝通，你的想法容易獲得認同與支持。", "今天工作上可能面臨一些挑戰，保持冷靜應對就能順利化解。", "今天是展現實力的好時機，不妨主動爭取表現的機會。", "今天適合整理手邊的工作進度，把步調放穩會讓效率更高。", "今天團隊合作運旺盛，與夥伴齊心協力能讓專案進展順利。"]}, "ja": {"총운": ["落ち着いて一日を始めることで、思いがけず良い流れに出会えそうな日です。", "小さな変化が大きなチャンスにつながることもあるので、周囲をよく観察してみましょう。", "無理な決断よりも慎重な選択が有利に働く一日です。", "先延ばしにしていたことを片付けるのに良い流れがやってきます。", "周りの人からのアドバイスが思わぬ助けになる日です。", "普段よりも直感が冴える時期なので、信じて行動してみるのも良いでしょう。", "焦らず一つずつ片付けていけば、無難に過ごせる一日になります。", "新しいことに挑戦するのに悪くない運気が漂っています。", "心にゆとりを持つことで、思いがけない嬉しい知らせが届くかもしれません。", "今日はいつものリズムを守ることが何よりの幸運になります。"], "애정운": ["率直な会話が二人の関係をより一層近づけてくれます。", "一人の時間を持つことが、かえって関係にプラスになる日です。", "ちょっとした気遣いが相手に大きく伝わる一日です。", "新しい出会いの気配がほのかに感じられます。", "感情の起伏を上手にコントロールすると、関係がぐっと穏やかになります。", "自分から歩み寄る勇気が、良い結果につながるかもしれません。", "過去の縁に未練を残すより、今この瞬間に目を向けるのが良さそうです。", "言葉にしなければ伝わらない一日です。素直な気持ちを表現してみましょう。"], "재물운": ["衝動買いは避け、計画的な支出を心がけたい日です。", "思いがけないところから、ちょっとした利益が生まれるかもしれません。", "投資よりも貯蓄に力を入れるほうが有利な流れです。", "同僚や知人とのお金のやり取りは慎重に扱いましょう。", "コツコツと積み重ねた努力が、少しずつ金運へとつながっていく時期です。", "思わぬ出費が発生することもあるので、余裕資金を用意しておきましょう。", "情報をしっかり見極めれば、良いチャンスをつかめそうです。"], "건강운": ["無理なスケジュールよりも、十分な休息が必要な一日です。", "軽い散歩やストレッチが体調管理に役立ちます。", "食べ過ぎや飲み過ぎは控えたほうが良い時期です。", "睡眠の質を高めることで、全体的な体調が良くなります。", "ストレス管理が今日の健康面で最も大切なポイントです。", "体からのサインに耳を傾ければ、大きなトラブルなく過ごせる一日です。"], "직장운": ["チームでの協力が良い成果につながりそうな流れです。", "黙々と重ねてきた努力を、周囲が認めてくれる日です。", "新しい仕事の提案が舞い込むかもしれないので、心を開いて受け止めましょう。", "同僚との意見の違いも、話し合いによって上手にまとめられます。", "計画を立て直すのに良い時期なので、スケジュールを見直してみましょう。", "小さなミスにとらわれすぎなくても大丈夫な一日です。"]}, "vi": {"총운": ["Hôm nay là một ngày tràn đầy năng lượng tích cực, mọi việc bạn làm đều có xu hướng thuận lợi hơn thường ngày.", "Vận may đang mỉm cười với bạn, hãy tận dụng thời điểm này để bắt đầu những dự định còn dang dở.", "Có thể sẽ có một vài trở ngại nhỏ, nhưng bạn hoàn toàn đủ bản lĩnh để vượt qua một cách nhẹ nhàng.", "Đây là ngày thích hợp để nhìn lại bản thân và đặt ra những mục tiêu mới cho chặng đường sắp tới.", "Năng lượng xung quanh bạn khá ổn định, mọi thứ sẽ diễn ra đúng kế hoạch nếu bạn giữ vững sự bình tĩnh.", "Một tin vui bất ngờ có thể xuất hiện, hãy giữ tâm thế cởi mở để đón nhận những điều tốt đẹp.", "Hôm nay thích hợp để kết nối với những người xung quanh, các mối quan hệ sẽ mang lại nhiều giá trị bất ngờ.", "Bạn nên thận trọng hơn trong lời nói và hành động để tránh những hiểu lầm không đáng có.", "Trực giác của bạn hôm nay khá nhạy bén, hãy tin vào cảm nhận của chính mình khi đưa ra quyết định.", "Mọi nỗ lực bạn đã bỏ ra gần đây sẽ dần được đền đáp, chỉ cần kiên nhẫn thêm một chút nữa."], "애정운": ["Tình cảm hôm nay có chiều hướng ấm áp, các cặp đôi dễ tìm được tiếng nói chung hơn.", "Người độc thân có cơ hội gặp gỡ một người thú vị, hãy để bản thân cởi mở hơn với những cuộc trò chuyện mới.", "Nếu có hiểu lầm với người yêu, đây là lúc thích hợp để chủ động lắng nghe và làm hòa.", "Một lời nói ngọt ngào đúng lúc sẽ giúp mối quan hệ của bạn thêm gắn kết.", "Hãy dành thời gian quan tâm đến cảm xúc của đối phương, sự chân thành luôn được trân trọng.", "Vận đào hoa khá vượng trong hôm nay, bạn dễ thu hút sự chú ý từ người khác giới.", "Đừng ngần ngại bày tỏ tình cảm thật lòng, cơ hội để tiến xa hơn đang ở rất gần.", "Một chút ghen tuông nhỏ có thể xuất hiện, hãy giữ bình tĩnh và trao đổi thẳng thắn để tránh rạn nứt."], "재물운": ["Tài chính của bạn hôm nay khá ổn định, không có biến động lớn nào đáng lo ngại.", "Có thể xuất hiện một khoản thu nhập bất ngờ, hãy để ý đến những cơ hội nhỏ xung quanh.", "Đây không phải thời điểm thích hợp để đầu tư mạo hiểm, nên cân nhắc kỹ trước khi chi tiêu lớn.", "Vận tài lộc đang lên, công việc kinh doanh hoặc đầu tư có dấu hiệu khởi sắc.", "Hãy chú ý đến các khoản chi tiêu nhỏ lẻ, chúng có thể cộng dồn thành một con số đáng kể.", "Một cơ hội hợp tác về tài chính có thể xuất hiện, hãy xem xét cẩn thận trước khi quyết định.", "Bạn nên ưu tiên tiết kiệm hơn là chi tiêu trong giai đoạn này để chuẩn bị cho những kế hoạch dài hạn."], "건강운": ["Sức khỏe của bạn hôm nay khá tốt, tuy nhiên đừng quên nghỉ ngơi đầy đủ để duy trì năng lượng.", "Bạn nên chú ý đến hệ tiêu hóa, hạn chế ăn uống thất thường trong ngày hôm nay.", "Một chút vận động nhẹ nhàng như đi bộ hoặc giãn cơ sẽ giúp tinh thần bạn thoải mái hơn.", "Giấc ngủ đóng vai trò quan trọng hôm nay, hãy cố gắng đi ngủ sớm để cơ thể được phục hồi.", "Tránh căng thẳng quá mức, hãy dành ra vài phút thư giãn để cân bằng lại tâm trí.", "Sức đề kháng của bạn có phần suy giảm nhẹ, nên bổ sung thêm nước và vitamin cần thiết."], "직장운": ["Công việc hôm nay diễn ra khá suôn sẻ, những nỗ lực của bạn dễ được cấp trên ghi nhận.", "Đây là thời điểm tốt để đề xuất ý tưởng mới, sự sáng tạo của bạn đang ở mức cao.", "Có thể xuất hiện một vài áp lực từ deadline, hãy sắp xếp công việc theo thứ tự ưu tiên để không bị quá tải.", "Tinh thần hợp tác trong nhóm khá tốt hôm nay, đừng ngần ngại chia sẻ ý kiến của mình.", "Một cơ hội thăng tiến hoặc thay đổi công việc có thể xuất hiện, hãy chuẩn bị sẵn sàng để nắm bắt.", "Hãy cẩn trọng trong giao tiếp với đồng nghiệp để tránh những hiểu lầm không đáng có trong công việc."]}};
 
 const MONTH_NAMES_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DATE_FORMAT = {"ko": {"pattern": "{Y}년 {M}월 {D}일 기준", "personalizedSuffix": " (개인화 적용됨)"}, "zh-TW": {"pattern": "{Y}年{M}月{D}日運勢", "personalizedSuffix": "（已根據您的生辰客製化）"}, "ja": {"pattern": "{Y}年{M}月{D}日現在", "personalizedSuffix": "（パーソナライズ適用）"}, "vi": {"pattern": "Vận trình ngày {D}/{M}/{Y}", "personalizedSuffix": " (đã cá nhân hóa theo ngày sinh của bạn)"}};
 
 function formatTodayDate(today, personalized){
-    if(LANG.current==="ko"){
-        return `${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일 기준${personalized ? " (개인화 적용됨)" : ""}`;
+    const Y = today.getFullYear(), M = today.getMonth()+1, D = today.getDate();
+    if(LANG.current === "en"){
+        return `Based on ${MONTH_NAMES_EN[today.getMonth()]} ${D}, ${Y}${personalized ? " (personalized)" : ""}`;
     }
-    return `Based on ${MONTH_NAMES_EN[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}${personalized ? " (personalized)" : ""}`;
+    const df = DATE_FORMAT[LANG.current];
+    return fillTemplate(df.pattern, {Y,M,D}) + (personalized ? df.personalizedSuffix : "");
 }
 
 function calcToday(){
@@ -905,16 +766,6 @@ const SAMHAP_GROUPS = [ [11,3,7,"목"], [2,6,10,"화"], [5,9,1,"금"], [8,0,4,"�
 const YUKHAP_PAIRS = [[0,1],[2,11],[3,10],[4,9],[5,8],[6,7]];
 const CHUNG_PAIRS = [[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]];
 
-function hasBatchim(char){
-    const code = char.charCodeAt(0) - 0xAC00;
-    if(code<0 || code>11171) return false;
-    return (code%28)!==0;
-}
-
-function josaWaGwa(word){
-    return hasBatchim(word[word.length-1]) ? "과" : "와";
-}
-
 function getJiRelation(z1,z2){
     if(z1===z2) return { type:"same" };
     for(const g of SAMHAP_GROUPS){ if(g.includes(z1) && g.includes(z2)) return { type:"samhap", element:g[3] }; }
@@ -922,6 +773,8 @@ function getJiRelation(z1,z2){
     for(const [a,b] of CHUNG_PAIRS){ if((z1===a&&z2===b)||(z1===b&&z2===a)) return { type:"chung" }; }
     return { type:"neutral" };
 }
+
+const RELATION_TEMPLATES = {"ko": {"same": "두 분 모두 일간이 {EL1} 기운으로, 서로 비슷한 기질을 가진 편안한 관계입니다.", "generating": "{EL1}·{EL2} 조합은 서로 기운을 북돋아주는 상생 관계로, 함께 있을 때 시너지가 좋은 편입니다.", "overcoming": "{EL1}·{EL2} 조합은 서로 다른 방향으로 부딪히는 상극 관계로, 이해와 배려가 관계의 핵심입니다.", "jiSamhap": "띠({A1}·{A2})가 삼합을 이루어 {ELEMENT} 기운으로 강하게 뭉치는 궁합입니다.", "jiYukhap": "띠({A1}·{A2})가 육합 관계로, 서로 자연스럽게 끌리는 편안한 인연입니다.", "jiChung": "띠({A1}·{A2})가 충(沖) 관계로, 서로 부딪히기 쉬워 배려와 조율이 특히 중요합니다.", "jiSame": "두 분 모두 같은 띠({A1})로, 서로를 잘 이해하는 편입니다.", "jiNeutral": "띠({A1}·{A2}) 사이에 특별한 합충 관계는 없어 무난한 편입니다.", "header": "<b>{N1}</b>({DM} {GAN1}·{EL1}, {A1}띠) &nbsp;×&nbsp; <b>{N2}</b>({DM} {GAN2}·{EL2}, {A2}띠)", "scoreUnit": "점"}, "en": {"same": "Both of you share the same Day Master element ({EL1}), giving you a comfortable, similar temperament.", "generating": "{EL1} and {EL2} nurture each other in a generating relationship, creating great synergy together.", "overcoming": "{EL1} and {EL2} clash in a controlling relationship, so understanding and consideration are key.", "jiSamhap": "Your zodiac signs ({A1} & {A2}) form a Triple Harmony, bonding strongly through {ELEMENT} energy.", "jiYukhap": "Your zodiac signs ({A1} & {A2}) form a Six Harmony pair, drawn naturally and comfortably to each other.", "jiChung": "Your zodiac signs ({A1} & {A2}) are in a Clash relationship, so you may butt heads easily - consideration and coordination matter.", "jiSame": "You share the same zodiac sign ({A1}), which helps you understand each other well.", "jiNeutral": "Your zodiac signs ({A1} & {A2}) have no special harmony or clash relationship - a fairly neutral match.", "header": "<b>{N1}</b> ({DM}: {GAN1}/{EL1}, Year of the {A1}) &nbsp;×&nbsp; <b>{N2}</b> ({DM}: {GAN2}/{EL2}, Year of the {A2})", "scoreUnit": "%"}, "zh-TW": {"same": "{N1}和{N2}的日主同屬{EL1}，彼此個性相近、容易理解對方的想法，是志同道合的好搭檔。", "generating": "{EL1}與{EL2}形成相生關係，兩人能互相扶持、彼此加分，是很有默契的組合。", "overcoming": "{EL1}與{EL2}形成相剋關係，雖然個性可能有些摩擦，但只要懂得互補退讓，也能激盪出不錯的火花。", "jiSamhap": "{A1}與{A2}形成三合{ELEMENT}局，彼此氣場相合、緣分深厚，相處起來格外投緣。", "jiYukhap": "{A1}與{A2}形成六合，兩人天生有種說不出的默契，相處起來特別融洽。", "jiChung": "{A1}與{A2}形成相沖，個性差異較大，相處時需要多一些包容與溝通才能減少摩擦。", "jiSame": "兩人同屬{A1}年生，個性與步調相近，很容易一拍即合。", "jiNeutral": "{A1}與{A2}之間沒有特別的合沖關係，相處平順自然，需要靠後天的努力慢慢培養默契。", "header": "{N1}（{DM}：{GAN1}/{EL1}，{A1}年生）× {N2}（{DM}：{GAN2}/{EL2}，{A2}年生）", "scoreUnit": "%"}, "ja": {"same": "お二人とも日主が{EL1}の気を持っており、似た気質を持つ心地よい関係です。", "generating": "{EL1}と{EL2}はお互いを高め合う相生の関係にあり、一緒にいることで良いシナジーが生まれやすい相性です。", "overcoming": "{EL1}と{EL2}は互いにぶつかり合う相剋の関係にあるため、理解と思いやりが関係を築く鍵になります。", "jiSamhap": "{A1}年と{A2}年は三合を成し、{ELEMENT}の気で強く結びつく相性です。", "jiYukhap": "{A1}年と{A2}年は六合の関係にあり、自然に惹かれ合う心地よいご縁です。", "jiChung": "{A1}年と{A2}年は沖（ちゅう）の関係にあり、ぶつかりやすいため思いやりと調整が特に大切です。", "jiSame": "お二人とも同じ{A1}年生まれで、お互いをよく理解し合える間柄です。", "jiNeutral": "{A1}年と{A2}年の間には特別な合冲の関係はなく、比較的穏やかな相性です。", "header": "{N1}さん（{DM}：{GAN1}・{EL1}、{A1}年生まれ）×{N2}さん（{DM}：{GAN2}・{EL2}、{A2}年生まれ）", "scoreUnit": "点"}, "vi": {"same": "Cả hai người đều có Nhật Chủ thuộc hành {EL1}, tạo nên sự đồng điệu tự nhiên trong tính cách và cách nhìn nhận cuộc sống.", "generating": "Hành {EL1} và hành {EL2} ở trong mối quan hệ tương sinh, mang lại sự hỗ trợ và bổ trợ lẫn nhau trong mối quan hệ này.", "overcoming": "Hành {EL1} và hành {EL2} ở trong mối quan hệ tương khắc, mối quan hệ này có thể trải qua nhiều thử thách nhưng cũng giúp cả hai cùng trưởng thành.", "jiSamhap": "{A1} và {A2} tạo thành thế Tam Hợp mang năng lượng hành {ELEMENT}, báo hiệu sự ăn ý trong hợp tác và vận may song hành.", "jiYukhap": "{A1} và {A2} tạo thành thế Lục Hợp, một sự kết hợp hài hòa và bổ sung cho nhau.", "jiChung": "{A1} và {A2} tạo thành thế Lục Xung, mối quan hệ này cần nhiều sự thấu hiểu và nhường nhịn để giữ hòa khí.", "jiSame": "Cả hai đều cầm tinh con {A1}, mang lại sự đồng cảm và thấu hiểu tự nhiên giữa hai người.", "jiNeutral": "{A1} và {A2} không tạo thành thế hợp hay xung đặc biệt, mối quan hệ diễn ra bình hòa, không có nhiều biến động.", "header": "{N1} ({DM}: {GAN1}/{EL1}, tuổi {A1}) và {N2} ({DM}: {GAN2}/{EL2}, tuổi {A2})", "scoreUnit": "%"}};
 
 function calcMatch(){
     const d1 = document.getElementById("matchDate1").value;
@@ -943,23 +796,17 @@ function calcMatch(){
     const el1 = CHEONGAN_OHENG[day1.ganIdx];
     const el2 = CHEONGAN_OHENG[day2.ganIdx];
 
+    const RT = RELATION_TEMPLATES[LANG.current];
     let baseScore, relationText;
-    const isKo = LANG.current==="ko";
     if(el1===el2){
         baseScore = 78;
-        relationText = isKo
-            ? `두 분 모두 일간이 ${el1} 기운으로, 서로 비슷한 기질을 가진 편안한 관계입니다.`
-            : `Both of you share the same Day Master element (${ohengLabel(el1)}), giving you a comfortable, similar temperament.`;
+        relationText = fillTemplate(RT.same, { EL1: ohengLabel(el1) });
     } else if(OHENG_RELATION[el1].generates===el2 || OHENG_RELATION[el2].generates===el1){
         baseScore = 90;
-        relationText = isKo
-            ? `${el1}${josaWaGwa(el1)} ${el2}는 서로 기운을 북돋아주는 상생 관계로, 함께 있을 때 시너지가 좋은 편입니다.`
-            : `${ohengLabel(el1)} and ${ohengLabel(el2)} nurture each other in a generating relationship, creating great synergy together.`;
+        relationText = fillTemplate(RT.generating, { EL1: ohengLabel(el1), EL2: ohengLabel(el2) });
     } else {
         baseScore = 58;
-        relationText = isKo
-            ? `${el1}${josaWaGwa(el1)} ${el2}는 서로 다른 방향으로 부딪히는 상극 관계로, 이해와 배려가 관계의 핵심입니다.`
-            : `${ohengLabel(el1)} and ${ohengLabel(el2)} clash in a controlling relationship, so understanding and consideration are key.`;
+        relationText = fillTemplate(RT.overcoming, { EL1: ohengLabel(el1), EL2: ohengLabel(el2) });
     }
 
     const year1 = getYearGanZhi(y1,m1,dd1,12);
@@ -970,41 +817,32 @@ function calcMatch(){
     let jiScore, jiText;
     if(ji.type==="samhap"){
         jiScore = 12;
-        jiText = isKo
-            ? `띠(${a1}·${a2})가 삼합을 이루어 ${ji.element} 기운으로 강하게 뭉치는 궁합입니다.`
-            : `Your zodiac signs (${a1} & ${a2}) form a Triple Harmony, bonding strongly through ${ohengLabel(ji.element)} energy.`;
+        jiText = fillTemplate(RT.jiSamhap, { A1:a1, A2:a2, ELEMENT: ohengLabel(ji.element) });
     } else if(ji.type==="yukhap"){
         jiScore = 9;
-        jiText = isKo
-            ? `띠(${a1}·${a2})가 육합 관계로, 서로 자연스럽게 끌리는 편안한 인연입니다.`
-            : `Your zodiac signs (${a1} & ${a2}) form a Six Harmony pair, drawn naturally and comfortably to each other.`;
+        jiText = fillTemplate(RT.jiYukhap, { A1:a1, A2:a2 });
     } else if(ji.type==="chung"){
         jiScore = -13;
-        jiText = isKo
-            ? `띠(${a1}·${a2})가 충(沖) 관계로, 서로 부딪히기 쉬워 배려와 조율이 특히 중요합니다.`
-            : `Your zodiac signs (${a1} & ${a2}) are in a Clash relationship, so you may butt heads easily - consideration and coordination matter.`;
+        jiText = fillTemplate(RT.jiChung, { A1:a1, A2:a2 });
     } else if(ji.type==="same"){
         jiScore = 4;
-        jiText = isKo
-            ? `두 분 모두 같은 띠(${a1})로, 서로를 잘 이해하는 편입니다.`
-            : `You share the same zodiac sign (${a1}), which helps you understand each other well.`;
+        jiText = fillTemplate(RT.jiSame, { A1:a1 });
     } else {
         jiScore = 0;
-        jiText = isKo
-            ? `띠(${a1}·${a2}) 사이에 특별한 합충 관계는 없어 무난한 편입니다.`
-            : `Your zodiac signs (${a1} & ${a2}) have no special harmony or clash relationship - a fairly neutral match.`;
+        jiText = fillTemplate(RT.jiNeutral, { A1:a1, A2:a2 });
     }
 
     const jitter = hashString(d1+"_"+d2) % 9 - 4;
     const score = Math.max(35, Math.min(99, baseScore + jiScore + jitter));
 
-    const header = isKo
-        ? `<b>${n1}</b>(일간 ${ganLabel(day1.ganIdx)}·${el1}, ${a1}띠) &nbsp;×&nbsp; <b>${n2}</b>(일간 ${ganLabel(day2.ganIdx)}·${el2}, ${a2}띠)`
-        : `<b>${n1}</b> (${t("dayMasterShort")}: ${ganLabel(day1.ganIdx)}/${ohengLabel(el1)}, Year of the ${a1}) &nbsp;×&nbsp; <b>${n2}</b> (${t("dayMasterShort")}: ${ganLabel(day2.ganIdx)}/${ohengLabel(el2)}, Year of the ${a2})`;
+    const header = fillTemplate(RT.header, {
+        N1:n1, N2:n2, GAN1:ganLabel(day1.ganIdx), GAN2:ganLabel(day2.ganIdx),
+        EL1:ohengLabel(el1), EL2:ohengLabel(el2), A1:a1, A2:a2, DM:t("dayMasterShort")
+    });
 
     const html = `
     <div class="compat-score">
-        <div class="num">${score}${isKo ? "<span>점</span>" : "<span>%</span>"}</div>
+        <div class="num">${score}<span>${RT.scoreUnit}</span></div>
     </div>
     <div class="result-box">
         ${header}<br><br>
@@ -1014,66 +852,10 @@ function calcMatch(){
     box.innerHTML = html;
 }
 
-const DAYMASTER_DESC = {
-    ko: {
-        "갑":"큰 나무처럼 곧고 진취적이며, 앞장서서 일을 이끄는 리더십을 지녔습니다.",
-        "을":"부드러운 풀과 꽃처럼 유연하고 적응력이 뛰어나며, 섬세한 감성을 지녔습니다.",
-        "병":"태양처럼 밝고 열정적이며, 주변에 활력을 불어넣는 힘을 가졌습니다.",
-        "정":"은은한 촛불처럼 따뜻하고 세심하며, 사람을 배려하는 마음이 깊습니다.",
-        "무":"큰 산처럼 묵직하고 믿음직스러우며, 흔들리지 않는 안정감을 지녔습니다.",
-        "기":"기름진 땅처럼 포용력이 크고 성실하며, 주변을 두루 챙기는 편입니다.",
-        "경":"제련된 쇠처럼 강직하고 결단력이 있으며, 원칙을 중시하는 성향입니다.",
-        "신":"보석처럼 예리하고 세련되며, 완성도를 중요하게 여기는 성격입니다.",
-        "임":"큰 강물처럼 지혜롭고 포용력이 넓으며, 변화에 유연하게 대처합니다.",
-        "계":"맑은 이슬비처럼 섬세하고 통찰력이 있으며, 조용히 내실을 다지는 편입니다."
-    },
-    en: {
-        "갑":"Like a tall tree, you are upright and forward-driving, with the leadership to take the lead.",
-        "을":"Like soft grass and flowers, you are flexible and highly adaptable, with delicate sensitivity.",
-        "병":"Like the sun, you are bright and passionate, bringing energy to those around you.",
-        "정":"Like a gentle candle flame, you are warm and considerate, with deep care for others.",
-        "무":"Like a great mountain, you are steady and dependable, with an unshakable sense of stability.",
-        "기":"Like fertile soil, you are broadly accepting and diligent, looking after those around you.",
-        "경":"Like refined metal, you are firm and decisive, valuing principle.",
-        "신":"Like a gemstone, you are sharp and refined, caring deeply about doing things well.",
-        "임":"Like a great river, you are wise and broadly accepting, adapting flexibly to change.",
-        "계":"Like clear drizzle, you are delicate and insightful, quietly building substance."
-    }
-};
-
-const OHENG_TRAIT = {
-    ko: {
-        "목":"성장 지향적이고 추진력이 강한 기운이 두드러집니다.",
-        "화":"열정적이고 표현력이 풍부한 기운이 두드러집니다.",
-        "토":"안정적이고 신뢰를 중시하는 기운이 두드러집니다.",
-        "금":"원칙적이고 결단력 있는 기운이 두드러집니다.",
-        "수":"지혜롭고 유연한 사고를 중시하는 기운이 두드러집니다."
-    },
-    en: {
-        "목":"A growth-oriented, strongly driven energy stands out.",
-        "화":"A passionate, highly expressive energy stands out.",
-        "토":"A stable energy that values trust stands out.",
-        "금":"A principled, decisive energy stands out.",
-        "수":"A wise energy that values flexible thinking stands out."
-    }
-};
-
-const OHENG_LACK = {
-    ko: {
-        "목":"성장과 추진력을 상징하는 목(木) 기운이 부족하니, 새로운 도전을 시도하는 연습이 도움이 됩니다.",
-        "화":"표현과 열정을 상징하는 화(火) 기운이 부족하니, 감정을 적극적으로 표현해보는 것이 좋습니다.",
-        "토":"안정과 신뢰를 상징하는 토(土) 기운이 부족하니, 꾸준함과 일관성을 기르는 것이 도움이 됩니다.",
-        "금":"결단과 원칙을 상징하는 금(金) 기운이 부족하니, 우선순위를 명확히 정하는 습관이 좋습니다.",
-        "수":"지혜와 유연함을 상징하는 수(水) 기운이 부족하니, 다양한 관점을 받아들이는 여유가 도움이 됩니다."
-    },
-    en: {
-        "목":"Wood energy, which symbolizes growth and drive, is lacking - practicing new challenges would help.",
-        "화":"Fire energy, which symbolizes expression and passion, is lacking - try expressing your emotions more actively.",
-        "토":"Earth energy, which symbolizes stability and trust, is lacking - building consistency and steadiness would help.",
-        "금":"Metal energy, which symbolizes decisiveness and principle, is lacking - clarifying your priorities would help.",
-        "수":"Water energy, which symbolizes wisdom and flexibility, is lacking - staying open to different perspectives would help."
-    }
-};
+const DAYMASTER_DESC = {"ko": {"갑": "큰 나무처럼 곧고 진취적이며, 앞장서서 일을 이끄는 리더십을 지녔습니다.", "을": "부드러운 풀과 꽃처럼 유연하고 적응력이 뛰어나며, 섬세한 감성을 지녔습니다.", "병": "태양처럼 밝고 열정적이며, 주변에 활력을 불어넣는 힘을 가졌습니다.", "정": "은은한 촛불처럼 따뜻하고 세심하며, 사람을 배려하는 마음이 깊습니다.", "무": "큰 산처럼 묵직하고 믿음직스러우며, 흔들리지 않는 안정감을 지녔습니다.", "기": "기름진 땅처럼 포용력이 크고 성실하며, 주변을 두루 챙기는 편입니다.", "경": "제련된 쇠처럼 강직하고 결단력이 있으며, 원칙을 중시하는 성향입니다.", "신": "보석처럼 예리하고 세련되며, 완성도를 중요하게 여기는 성격입니다.", "임": "큰 강물처럼 지혜롭고 포용력이 넓으며, 변화에 유연하게 대처합니다.", "계": "맑은 이슬비처럼 섬세하고 통찰력이 있으며, 조용히 내실을 다지는 편입니다."}, "en": {"갑": "Like a tall tree, you are upright and forward-driving, with the leadership to take the lead.", "을": "Like soft grass and flowers, you are flexible and highly adaptable, with delicate sensitivity.", "병": "Like the sun, you are bright and passionate, bringing energy to those around you.", "정": "Like a gentle candle flame, you are warm and considerate, with deep care for others.", "무": "Like a great mountain, you are steady and dependable, with an unshakable sense of stability.", "기": "Like fertile soil, you are broadly accepting and diligent, looking after those around you.", "경": "Like refined metal, you are firm and decisive, valuing principle.", "신": "Like a gemstone, you are sharp and refined, caring deeply about doing things well.", "임": "Like a great river, you are wise and broadly accepting, adapting flexibly to change.", "계": "Like clear drizzle, you are delicate and insightful, quietly building substance."}, "zh-TW": {"갑": "甲木日主的你，個性正直坦率，像挺拔的大樹一樣有領導力與上進心，做事有原則、喜歡照顧身邊的人，但有時候也顯得固執己見。", "을": "乙木日主的你，性格溫和柔韌，就像隨風搖曳卻不易折斷的花草藤蔓，適應力強、心思細膩、人緣好，但偶爾容易猶豫不決、缺乏主見。", "병": "丙火日主的你，熱情開朗、光明磊落，如同普照大地的太陽，充滿活力與感染力，天生具有領導氣質，只是有時候性子急躁、喜怒形於色。", "정": "丁火日主的你，細膩溫暖、體貼周到，像柔和的燭光照亮身邊的人，重感情、有智慧，善於察言觀色，但內心偶爾敏感多慮。", "무": "戊土日主的你，穩重踏實、值得信賴，如巍峨高山般厚重可靠，責任感強、意志堅定，是很好的依靠，只是有時候略顯固執保守。", "기": "己土日主的你，溫厚包容、善解人意，像滋養萬物的田園大地，做事細心謹慎、任勞任怨，人緣極佳，只是偶爾容易想太多、缺乏自信。", "경": "庚金日主的你，剛毅果斷、重情重義，如同鋒利的刀劍，行動力強、是非分明、講義氣有魄力，但有時候脾氣較硬、不易妥協。", "신": "辛金日主的你，細緻優雅、追求完美，像精雕細琢的珠寶，審美獨到、自尊心強，重視形象與品味，但偶爾會有點敏感、愛面子。", "임": "壬水日主的你，聰明靈活、胸懷寬廣，如奔流不息的江河大海，適應力強、思維活躍、人脈廣、點子多，只是有時候三分鐘熱度、不夠專注。", "계": "癸水日主的你，心思細膩、直覺敏銳，像滋潤萬物的雨露泉水，溫柔體貼、富有同理心，善於洞察人心，但偶爾容易多愁善感、缺乏安全感。"}, "ja": {"갑": "大樹のようにまっすぐで進取の気性に富み、先頭に立って物事を導くリーダーシップを備えています。", "을": "しなやかな草花のように柔軟で適応力が高く、繊細な感性を持っています。", "병": "太陽のように明るく情熱的で、周囲に活力を与える力を持っています。", "정": "ほのかな灯火のように温かく細やかで、人を思いやる心が深いタイプです。", "무": "大きな山のようにどっしりと頼もしく、揺るがない安定感を備えています。", "기": "肥沃な大地のように包容力があり誠実で、周囲をきめ細やかに気遣うタイプです。", "경": "鍛えられた鋼のように意志が強く決断力があり、原則を大切にする性格です。", "신": "宝石のように鋭く洗練されており、物事の完成度を大切にする性格です。", "임": "大河のように知恵深く懐が広く、変化にも柔軟に対応します。", "계": "澄んだ霧雨のように繊細で洞察力があり、静かに実力を積み重ねていくタイプです。"}, "vi": {"갑": "Nhật Chủ Giáp Mộc mang khí chất của cây đại thụ: chính trực, có chí tiến thủ và tinh thần trách nhiệm cao. Bạn thích dẫn dắt, luôn hướng về phía trước và không ngại đối mặt với thử thách.", "을": "Nhật Chủ Ất Mộc tượng trưng cho dây leo và hoa cỏ, mềm mại nhưng bền bỉ. Bạn khéo léo, biết thích nghi với hoàn cảnh và luôn tìm cách vươn lên một cách uyển chuyển.", "병": "Nhật Chủ Bính Hỏa tựa như ánh mặt trời rực rỡ, tính cách nhiệt huyết, hào phóng và tràn đầy năng lượng. Bạn dễ thu hút sự chú ý và luôn mang lại nguồn cảm hứng cho người xung quanh.", "정": "Nhật Chủ Đinh Hỏa như ánh nến hay ánh sao đêm, ấm áp nhưng tinh tế. Bạn nhạy cảm, giàu trực giác và có khả năng thấu hiểu người khác một cách sâu sắc.", "무": "Nhật Chủ Mậu Thổ vững chãi như núi lớn, đáng tin cậy và kiên định. Bạn có tư duy rộng mở, biết bao dung và luôn là điểm tựa cho những người xung quanh.", "기": "Nhật Chủ Kỷ Thổ như đất ruộng màu mỡ, nuôi dưỡng và bao dung. Bạn kiên nhẫn, thực tế và luôn âm thầm chăm lo cho những người mình yêu thương.", "경": "Nhật Chủ Canh Kim rắn rỏi như thanh kiếm sắc bén, quyết đoán và ngay thẳng. Bạn coi trọng lẽ phải, hành động dứt khoát và không ngại đấu tranh cho điều mình tin tưởng.", "신": "Nhật Chủ Tân Kim tinh xảo như trang sức quý, chỉn chu và tinh tế. Bạn coi trọng vẻ đẹp, sự hoàn hảo trong từng chi tiết và luôn giữ phong thái thanh lịch.", "임": "Nhật Chủ Nhâm Thủy bao la như đại dương, thông minh và có tầm nhìn xa. Bạn thích tự do, dễ thích nghi và luôn tràn đầy những ý tưởng mới mẻ.", "계": "Nhật Chủ Quý Thủy nhẹ nhàng như mưa hay sương sớm, tinh tế và giàu trực giác. Bạn nhạy cảm, thấu hiểu và có khả năng cảm nhận những điều tinh tế mà người khác dễ bỏ qua."}};
+const OHENG_TRAIT = {"ko": {"목": "성장 지향적이고 추진력이 강한 기운이 두드러집니다.", "화": "열정적이고 표현력이 풍부한 기운이 두드러집니다.", "토": "안정적이고 신뢰를 중시하는 기운이 두드러집니다.", "금": "원칙적이고 결단력 있는 기운이 두드러집니다.", "수": "지혜롭고 유연한 사고를 중시하는 기운이 두드러집니다."}, "en": {"목": "A growth-oriented, strongly driven energy stands out.", "화": "A passionate, highly expressive energy stands out.", "토": "A stable energy that values trust stands out.", "금": "A principled, decisive energy stands out.", "수": "A wise energy that values flexible thinking stands out."}, "zh-TW": {"목": "木氣旺盛的你，充滿生命力與成長的慾望，個性積極進取、富有創造力，樂於接受新挑戰，是天生的開拓者。", "화": "火氣旺盛的你，熱情如火、活力四射，個性開朗直率，善於表達也很有感染力，總能為身邊帶來正能量。", "토": "土氣旺盛的你，個性沉穩踏實、值得信賴，做事有耐心、重承諾，是團隊中最可靠的中流砥柱。", "금": "金氣旺盛的你，意志堅定、行事果決，重視原則與規矩，執行力強，一旦設定目標就會全力以赴。", "수": "水氣旺盛的你，思維靈活、聰明機智，適應力強、善於變通，好奇心旺盛，總能在變化中找到新方向。"}, "ja": {"목": "成長志向で推進力の強いエネルギーが際立っています。", "화": "情熱的で表現力豊かなエネルギーが際立っています。", "토": "安定感があり信頼を大切にするエネルギーが際立っています。", "금": "原則を重んじ決断力に優れたエネルギーが際立っています。", "수": "知恵深く柔軟な思考を大切にするエネルギーが際立っています。"}, "vi": {"목": "bạn tràn đầy sức sống, luôn hướng đến sự phát triển và có tinh thần cầu tiến mạnh mẽ.", "화": "bạn nhiệt huyết, năng động và luôn tỏa sáng trong mọi hoàn cảnh.", "토": "bạn vững vàng, đáng tin cậy và luôn là chỗ dựa cho những người xung quanh.", "금": "bạn quyết đoán, nguyên tắc và có ý chí kiên định trước mọi thử thách.", "수": "bạn thông minh, linh hoạt và có khả năng thích nghi rất tốt với mọi hoàn cảnh."}};
+const OHENG_LACK = {"ko": {"목": "성장과 추진력을 상징하는 목(木) 기운이 부족하니, 새로운 도전을 시도하는 연습이 도움이 됩니다.", "화": "표현과 열정을 상징하는 화(火) 기운이 부족하니, 감정을 적극적으로 표현해보는 것이 좋습니다.", "토": "안정과 신뢰를 상징하는 토(土) 기운이 부족하니, 꾸준함과 일관성을 기르는 것이 도움이 됩니다.", "금": "결단과 원칙을 상징하는 금(金) 기운이 부족하니, 우선순위를 명확히 정하는 습관이 좋습니다.", "수": "지혜와 유연함을 상징하는 수(水) 기운이 부족하니, 다양한 관점을 받아들이는 여유가 도움이 됩니다."}, "en": {"목": "Wood energy, which symbolizes growth and drive, is lacking - practicing new challenges would help.", "화": "Fire energy, which symbolizes expression and passion, is lacking - try expressing your emotions more actively.", "토": "Earth energy, which symbolizes stability and trust, is lacking - building consistency and steadiness would help.", "금": "Metal energy, which symbolizes decisiveness and principle, is lacking - clarifying your priorities would help.", "수": "Water energy, which symbolizes wisdom and flexibility, is lacking - staying open to different perspectives would help."}, "zh-TW": {"목": "命盤中木氣較為欠缺，建議多接觸大自然、保持學習成長的心態，並適度培養耐心與韌性，有助補足木氣帶來的生命力。", "화": "命盤中火氣較為欠缺，建議多讓自己保持熱情與行動力，可以多曬太陽、多參與社交活動，為生活注入活力與自信。", "토": "命盤中土氣較為欠缺，建議培養穩定的生活步調與踏實的理財習慣，凡事三思而後行，有助增加安全感與穩定性。", "금": "命盤中金氣較為欠缺，建議加強決斷力與紀律性，遇事多練習明快做決定，並建立清楚的原則與界線。", "수": "命盤中水氣較為欠缺，建議多充實知識、保持開放的心態，適度放鬆並增加靈活變通的能力，有助思路更加清晰。"}, "ja": {"목": "成長と推進力を象徴する木（もく）の気が不足しているので、新しいことに挑戦してみる練習が役立ちます。", "화": "表現と情熱を象徴する火（か）の気が不足しているので、感情を積極的に表現してみるのが良いでしょう。", "토": "安定と信頼を象徴する土（ど）の気が不足しているので、粘り強さと一貫性を養うことが役立ちます。", "금": "決断と原則を象徴する金（ごん）の気が不足しているので、優先順位をはっきり決める習慣を持つと良いでしょう。", "수": "知恵と柔軟さを象徴する水（すい）の気が不足しているので、多様な視点を受け入れる余裕を持つことが役立ちます。"}, "vi": {"목": "Lá số của bạn thiếu hành Mộc, nên gần gũi với thiên nhiên, cây xanh và ưu tiên màu xanh lá trong trang phục hay không gian sống để cân bằng năng lượng.", "화": "Lá số của bạn thiếu hành Hỏa, nên tăng cường vận động, tiếp xúc nhiều hơn với ánh sáng và chọn màu đỏ, cam để khơi dậy nhiệt huyết bên trong.", "토": "Lá số của bạn thiếu hành Thổ, nên chú trọng sự ổn định trong cuộc sống, gần gũi với đất đai và ưu tiên các gam màu vàng, nâu đất để tăng cường sự vững vàng.", "금": "Lá số của bạn thiếu hành Kim, nên rèn luyện tính kỷ luật, sử dụng thêm vật phẩm kim loại và chọn màu trắng, bạc để tăng cường sự quyết đoán.", "수": "Lá số của bạn thiếu hành Thủy, nên uống đủ nước, gần gũi với sông hồ và chọn màu xanh dương, đen để khơi thông trí tuệ và sự linh hoạt."}};
+const AI_TEMPLATES = {"ko": {"intro": "당신의 일간(日干)은 <b>{GAN}({OHENG})</b>입니다. {DESC}", "dominant": "사주 전체에서는 <b>{DOMINANT}</b> 기운이 가장 강하게 나타나, {TRAIT}", "balanced": "오행이 비교적 고르게 분포되어 있어, 상황에 따라 균형 잡힌 대응이 가능한 사주입니다."}, "en": {"intro": "Your Day Master is <b>{GAN} ({OHENG})</b>. {DESC}", "dominant": "Across your whole chart, <b>{DOMINANT}</b> energy stands out the most - {TRAIT}", "balanced": "The five elements are fairly evenly distributed, giving you a balanced chart that can adapt to different situations."}, "zh-TW": {"intro": "你的日主是{GAN}（{OHENG}）。{DESC}", "dominant": "綜觀整體命盤，{DOMINANT}的能量最為突出——{TRAIT}", "balanced": "你命盤中的五行分布相當均衡，沒有特別欠缺或過旺的元素，代表你個性圓融、適應力強，能夠從容應對各種局面。"}, "ja": {"intro": "あなたの日主は{GAN}（{OHENG}）です。{DESC}", "dominant": "命式全体では{DOMINANT}の気が最も強く現れており、{TRAIT}", "balanced": "五行が比較的バランスよく分布しており、状況に応じて柔軟に対応できる命式です。"}, "vi": {"intro": "Nhật Chủ của bạn là {GAN} ({OHENG}). {DESC}", "dominant": "Xét trên tổng thể lá số, năng lượng hành {DOMINANT} nổi trội nhất - {TRAIT}", "balanced": "Ngũ hành trong lá số của bạn phân bố khá cân bằng, không có hành nào bị thiếu hụt, cho thấy một nội lực ổn định và hài hòa."}};
 
 function calcAiExplain(){
     const box = document.getElementById("aiResult");
@@ -1086,7 +868,6 @@ function calcAiExplain(){
     const { dayGanIdx, ohengCount } = lastSajuResult;
     const dayGanKey = CHEONGAN[dayGanIdx];
     const dayGanOheng = CHEONGAN_OHENG[dayGanIdx];
-    const isKo = LANG.current==="ko";
 
     let dominant = "목";
     let maxC = -1;
@@ -1099,19 +880,12 @@ function calcAiExplain(){
         if(ohengCount[el]===0){ lack = el; break; }
     }
 
-    const balanced = isKo
-        ? "오행이 비교적 고르게 분포되어 있어, 상황에 따라 균형 잡힌 대응이 가능한 사주입니다."
-        : "The five elements are fairly evenly distributed, giving you a balanced chart that can adapt to different situations.";
+    const AT = AI_TEMPLATES[LANG.current];
+    const introText = fillTemplate(AT.intro, { GAN: ganLabel(dayGanIdx), OHENG: ohengLabel(dayGanOheng), DESC: DAYMASTER_DESC[LANG.current][dayGanKey] });
+    const dominantText = fillTemplate(AT.dominant, { DOMINANT: ohengLabel(dominant), TRAIT: OHENG_TRAIT[LANG.current][dominant] });
+    const tailText = lack ? OHENG_LACK[LANG.current][lack] : AT.balanced;
 
-    const paragraph = isKo ? `
-        당신의 일간(日干)은 <b>${ganLabel(dayGanIdx)}(${ohengLabel(dayGanOheng)})</b>입니다. ${DAYMASTER_DESC.ko[dayGanKey]}<br><br>
-        사주 전체에서는 <b>${ohengLabel(dominant)}</b> 기운이 가장 강하게 나타나, ${OHENG_TRAIT.ko[dominant]}<br><br>
-        ${lack ? OHENG_LACK.ko[lack] : balanced}
-    ` : `
-        Your Day Master is <b>${ganLabel(dayGanIdx)} (${ohengLabel(dayGanOheng)})</b>. ${DAYMASTER_DESC.en[dayGanKey]}<br><br>
-        Across your whole chart, <b>${ohengLabel(dominant)}</b> energy stands out the most - ${OHENG_TRAIT.en[dominant]}<br><br>
-        ${lack ? OHENG_LACK.en[lack] : balanced}
-    `;
+    const paragraph = `${introText}<br><br>${dominantText}<br><br>${tailText}`;
 
     box.innerHTML = `
         <p class="hint">${t("aiDisclaimer")}</p>
@@ -1140,13 +914,12 @@ function toggleTheme(){
 }
 
 const savedLang = localStorage.getItem("saju-lang");
-if(savedLang === "ko" || savedLang === "en") LANG.current = savedLang;
+if(savedLang && LANGUAGES.some(l => l.code === savedLang)) LANG.current = savedLang;
 
 const savedTheme = localStorage.getItem("saju-theme");
 const systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 applyStaticText();
 applyTheme(savedTheme || (systemPrefersDark ? "dark" : "light"));
-
 </script>
 
 </body>
