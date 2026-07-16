@@ -718,6 +718,19 @@ const OHENG_RELATION = {
     "수":{ generates:"목", generatedBy:"금", overcomes:"화", overcomeBy:"토" }
 };
 
+const JIJI_ANIMAL = ["쥐","소","호랑이","토끼","용","뱀","말","양","원숭이","닭","개","돼지"];
+const SAMHAP_GROUPS = [ [11,3,7,"목"], [2,6,10,"화"], [5,9,1,"금"], [8,0,4,"수"] ];
+const YUKHAP_PAIRS = [[0,1],[2,11],[3,10],[4,9],[5,8],[6,7]];
+const CHUNG_PAIRS = [[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]];
+
+function getJiRelation(z1,z2){
+    if(z1===z2) return { type:"same" };
+    for(const g of SAMHAP_GROUPS){ if(g.includes(z1) && g.includes(z2)) return { type:"samhap", element:g[3] }; }
+    for(const [a,b] of YUKHAP_PAIRS){ if((z1===a&&z2===b)||(z1===b&&z2===a)) return { type:"yukhap" }; }
+    for(const [a,b] of CHUNG_PAIRS){ if((z1===a&&z2===b)||(z1===b&&z2===a)) return { type:"chung" }; }
+    return { type:"neutral" };
+}
+
 function calcMatch(){
     const d1 = document.getElementById("matchDate1").value;
     const d2 = document.getElementById("matchDate2").value;
@@ -750,16 +763,39 @@ function calcMatch(){
         relationText = `${el1}와 ${el2}는 서로 다른 방향으로 부딪히는 상극 관계로, 이해와 배려가 관계의 핵심입니다.`;
     }
 
-    const jitter = hashString(d1+"_"+d2) % 11 - 5;
-    const score = Math.max(40, Math.min(99, baseScore + jitter));
+    const year1 = getYearGanZhi(y1,m1,dd1,12);
+    const year2 = getYearGanZhi(y2,m2,dd2,12);
+    const ji = getJiRelation(year1.jiIdx, year2.jiIdx);
+
+    let jiScore, jiText;
+    if(ji.type==="samhap"){
+        jiScore = 12;
+        jiText = `띠(${JIJI_ANIMAL[year1.jiIdx]}·${JIJI_ANIMAL[year2.jiIdx]})가 삼합을 이루어 ${ji.element} 기운으로 강하게 뭉치는 궁합입니다.`;
+    } else if(ji.type==="yukhap"){
+        jiScore = 9;
+        jiText = `띠(${JIJI_ANIMAL[year1.jiIdx]}·${JIJI_ANIMAL[year2.jiIdx]})가 육합 관계로, 서로 자연스럽게 끌리는 편안한 인연입니다.`;
+    } else if(ji.type==="chung"){
+        jiScore = -13;
+        jiText = `띠(${JIJI_ANIMAL[year1.jiIdx]}·${JIJI_ANIMAL[year2.jiIdx]})가 충(沖) 관계로, 서로 부딪히기 쉬워 배려와 조율이 특히 중요합니다.`;
+    } else if(ji.type==="same"){
+        jiScore = 4;
+        jiText = `두 분 모두 같은 띠(${JIJI_ANIMAL[year1.jiIdx]})로, 서로를 잘 이해하는 편입니다.`;
+    } else {
+        jiScore = 0;
+        jiText = `띠(${JIJI_ANIMAL[year1.jiIdx]}·${JIJI_ANIMAL[year2.jiIdx]}) 사이에 특별한 합충 관계는 없어 무난한 편입니다.`;
+    }
+
+    const jitter = hashString(d1+"_"+d2) % 9 - 4;
+    const score = Math.max(35, Math.min(99, baseScore + jiScore + jitter));
 
     const html = `
     <div class="compat-score">
         <div class="num">${score}<span>점</span></div>
     </div>
     <div class="result-box">
-        <b>${n1}</b>(일간 ${CHEONGAN[day1.ganIdx]}·${el1}) &nbsp;×&nbsp; <b>${n2}</b>(일간 ${CHEONGAN[day2.ganIdx]}·${el2})<br><br>
-        ${relationText}
+        <b>${n1}</b>(일간 ${CHEONGAN[day1.ganIdx]}·${el1}, ${JIJI_ANIMAL[year1.jiIdx]}띠) &nbsp;×&nbsp; <b>${n2}</b>(일간 ${CHEONGAN[day2.ganIdx]}·${el2}, ${JIJI_ANIMAL[year2.jiIdx]}띠)<br><br>
+        ${relationText}<br><br>
+        ${jiText}
     </div>`;
     box.innerHTML = html;
 }
