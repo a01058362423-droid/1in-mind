@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" id="htmlRoot">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔮 사주팔자</title>
+<title>🔮 Saju Palja 사주팔자</title>
 
 <style>
 *{
@@ -59,10 +59,16 @@ body{
     transition:background .3s ease;
 }
 
-.theme-toggle{
+.top-controls{
     position:fixed;
     top:20px;
     right:20px;
+    display:flex;
+    gap:10px;
+    z-index:10;
+}
+
+.top-controls button{
     background:var(--toggle-bg);
     border:1px solid var(--toggle-border);
     color:#fff;
@@ -72,10 +78,9 @@ body{
     cursor:pointer;
     backdrop-filter:blur(4px);
     transition:.3s;
-    z-index:10;
 }
 
-.theme-toggle:hover{
+.top-controls button:hover{
     background:var(--toggle-border);
 }
 
@@ -232,7 +237,7 @@ h1{
 }
 
 .oheng-row .name{
-    width:36px;
+    width:60px;
     font-size:13px;
     color:var(--text-body);
     font-weight:bold;
@@ -327,47 +332,36 @@ h1{
 </head>
 <body>
 
-<button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙 다크모드</button>
+<div class="top-controls">
+    <button onclick="toggleLang()" id="langToggle">EN</button>
+    <button onclick="toggleTheme()" id="themeToggle">🌙 다크모드</button>
+</div>
 
 <div class="container">
 
     <h1>🔮 사주팔자</h1>
-    <p class="subtitle">생년월일시로 나의 명식을 확인하고, 오늘의 운세와 궁합까지 살펴보세요.</p>
+    <p class="subtitle" id="subtitleText">생년월일시로 나의 명식을 확인하고, 오늘의 운세와 궁합까지 살펴보세요.</p>
 
     <div class="tabs">
-        <button class="tab-btn active" data-tab="saju" onclick="switchTab('saju')">사주판 계산</button>
-        <button class="tab-btn" data-tab="today" onclick="switchTab('today')">오늘의 운세</button>
-        <button class="tab-btn" data-tab="match" onclick="switchTab('match')">궁합 보기</button>
-        <button class="tab-btn" data-tab="ai" onclick="switchTab('ai')">AI 해설</button>
+        <button class="tab-btn active" data-tab="saju" onclick="switchTab('saju')" id="tabBtnSaju">사주판 계산</button>
+        <button class="tab-btn" data-tab="today" onclick="switchTab('today')" id="tabBtnToday">오늘의 운세</button>
+        <button class="tab-btn" data-tab="match" onclick="switchTab('match')" id="tabBtnMatch">궁합 보기</button>
+        <button class="tab-btn" data-tab="ai" onclick="switchTab('ai')" id="tabBtnAi">AI 해설</button>
     </div>
 
     <div class="tab-panel active" id="tab-saju">
         <div class="form-row">
             <div class="field">
-                <label for="sajuDate">생년월일 (양력)</label>
+                <label for="sajuDate" id="sajuDateLabel">생년월일 (양력)</label>
                 <input type="date" id="sajuDate">
             </div>
             <div class="field">
-                <label for="sajuHour">태어난 시간</label>
-                <select id="sajuHour">
-                    <option value="unknown">모름</option>
-                    <option value="0">자시 (23:00~00:59)</option>
-                    <option value="2">축시 (01:00~02:59)</option>
-                    <option value="4">인시 (03:00~04:59)</option>
-                    <option value="6">묘시 (05:00~06:59)</option>
-                    <option value="8">진시 (07:00~08:59)</option>
-                    <option value="10">사시 (09:00~10:59)</option>
-                    <option value="12">오시 (11:00~12:59)</option>
-                    <option value="14">미시 (13:00~14:59)</option>
-                    <option value="16">신시 (15:00~16:59)</option>
-                    <option value="18">유시 (17:00~18:59)</option>
-                    <option value="20">술시 (19:00~20:59)</option>
-                    <option value="22">해시 (21:00~22:59)</option>
-                </select>
+                <label for="sajuHour" id="sajuHourLabel">태어난 시간</label>
+                <select id="sajuHour"></select>
             </div>
-            <button class="btn" onclick="calcSaju()">사주판 보기</button>
+            <button class="btn" onclick="calcSaju()" id="sajuBtn">사주판 보기</button>
         </div>
-        <p class="hint">※ 절기(입춘 등) 경계는 태양 황경 기반으로 정밀 계산됩니다. 다만 출생시간은 2시간 단위로만 입력받기 때문에, 절입 시각이 임박한 경우 약간의 오차가 있을 수 있습니다.</p>
+        <p class="hint" id="sajuHint">※ 절기(입춘 등) 경계는 태양 황경 기반으로 정밀 계산됩니다. 다만 출생시간은 2시간 단위로만 입력받기 때문에, 절입 시각이 임박한 경우 약간의 오차가 있을 수 있습니다.</p>
 
         <div id="sajuResult"></div>
     </div>
@@ -375,10 +369,10 @@ h1{
     <div class="tab-panel" id="tab-today">
         <div class="form-row">
             <div class="field">
-                <label for="todayBirth">생년월일 (선택, 입력 시 개인화)</label>
+                <label for="todayBirth" id="todayBirthLabel">생년월일 (선택, 입력 시 개인화)</label>
                 <input type="date" id="todayBirth">
             </div>
-            <button class="btn" onclick="calcToday()">오늘의 운세 보기</button>
+            <button class="btn" onclick="calcToday()" id="todayBtn">오늘의 운세 보기</button>
         </div>
         <div id="todayResult"></div>
     </div>
@@ -386,32 +380,32 @@ h1{
     <div class="tab-panel" id="tab-match">
         <div class="form-row">
             <div class="field">
-                <label for="matchName1">이름 A</label>
+                <label for="matchName1" id="matchName1Label">이름 A</label>
                 <input type="text" id="matchName1" placeholder="이름 (선택)">
             </div>
             <div class="field">
-                <label for="matchDate1">생년월일 A</label>
+                <label for="matchDate1" id="matchDate1Label">생년월일 A</label>
                 <input type="date" id="matchDate1">
             </div>
         </div>
         <div class="form-row">
             <div class="field">
-                <label for="matchName2">이름 B</label>
+                <label for="matchName2" id="matchName2Label">이름 B</label>
                 <input type="text" id="matchName2" placeholder="이름 (선택)">
             </div>
             <div class="field">
-                <label for="matchDate2">생년월일 B</label>
+                <label for="matchDate2" id="matchDate2Label">생년월일 B</label>
                 <input type="date" id="matchDate2">
             </div>
-            <button class="btn" onclick="calcMatch()">궁합 보기</button>
+            <button class="btn" onclick="calcMatch()" id="matchBtn">궁합 보기</button>
         </div>
         <div id="matchResult"></div>
     </div>
 
     <div class="tab-panel" id="tab-ai">
-        <p class="hint">먼저 "사주판 계산" 탭에서 사주를 계산하면, 그 결과를 바탕으로 해설을 생성합니다. (외부 AI API 없이 규칙 기반으로 자동 생성되는 해설입니다.)</p>
+        <p class="hint" id="aiHint">먼저 "사주판 계산" 탭에서 사주를 계산하면, 그 결과를 바탕으로 해설을 생성합니다. (외부 AI API 없이 규칙 기반으로 자동 생성되는 해설입니다.)</p>
         <div class="form-row">
-            <button class="btn" onclick="calcAiExplain()">AI 해설 생성하기</button>
+            <button class="btn" onclick="calcAiExplain()" id="aiBtn">AI 해설 생성하기</button>
         </div>
         <div id="aiResult"></div>
     </div>
@@ -421,11 +415,128 @@ h1{
 <script>
 
 const CHEONGAN = ["갑","을","병","정","무","기","경","신","임","계"];
+const CHEONGAN_ROMAN = ["Gap","Eul","Byeong","Jeong","Mu","Gi","Gyeong","Sin","Im","Gye"];
 const CHEONGAN_OHENG = ["목","목","화","화","토","토","금","금","수","수"];
 const JIJI = ["자","축","인","묘","진","사","오","미","신","유","술","해"];
+const JIJI_ROMAN = ["Ja","Chuk","In","Myo","Jin","Sa","O","Mi","Sin","Yu","Sul","Hae"];
 const JIJI_OHENG = ["수","토","목","목","토","화","화","토","금","금","토","수"];
+const JIJI_ANIMAL = ["쥐","소","호랑이","토끼","용","뱀","말","양","원숭이","닭","개","돼지"];
+const JIJI_ANIMAL_EN = ["Rat","Ox","Tiger","Rabbit","Dragon","Snake","Horse","Goat","Monkey","Rooster","Dog","Pig"];
 const OHENG_COLOR = { "목":"#4caf50", "화":"#e5534b", "토":"#c9973b", "금":"#8a8a8a", "수":"#3f8ee8" };
+const OHENG_EN = { "목":"Wood", "화":"Fire", "토":"Earth", "금":"Metal", "수":"Water" };
 const ZHI_ORDER_FROM_IN = [2,3,4,5,6,7,8,9,10,11,0,1];
+
+const LANG = { current: "ko" };
+
+function ganLabel(idx){ return LANG.current==="ko" ? CHEONGAN[idx] : CHEONGAN_ROMAN[idx]; }
+function jiLabel(idx){ return LANG.current==="ko" ? JIJI[idx] : JIJI_ROMAN[idx]; }
+function ohengLabel(el){ return LANG.current==="ko" ? el : OHENG_EN[el]; }
+function animalLabel(idx){ return LANG.current==="ko" ? JIJI_ANIMAL[idx] : JIJI_ANIMAL_EN[idx]; }
+
+const UI_TEXT = {
+    ko: {
+        subtitle: "생년월일시로 나의 명식을 확인하고, 오늘의 운세와 궁합까지 살펴보세요.",
+        tabSaju: "사주판 계산", tabToday: "오늘의 운세", tabMatch: "궁합 보기", tabAi: "AI 해설",
+        sajuDateLabel: "생년월일 (양력)", sajuHourLabel: "태어난 시간", sajuBtn: "사주판 보기",
+        sajuHint: "※ 절기(입춘 등) 경계는 태양 황경 기반으로 정밀 계산됩니다. 다만 출생시간은 2시간 단위로만 입력받기 때문에, 절입 시각이 임박한 경우 약간의 오차가 있을 수 있습니다.",
+        todayBirthLabel: "생년월일 (선택, 입력 시 개인화)", todayBtn: "오늘의 운세 보기",
+        matchName1Label: "이름 A", matchName1Ph: "이름 (선택)", matchDate1Label: "생년월일 A",
+        matchName2Label: "이름 B", matchName2Ph: "이름 (선택)", matchDate2Label: "생년월일 B",
+        matchBtn: "궁합 보기",
+        aiHint: '먼저 "사주판 계산" 탭에서 사주를 계산하면, 그 결과를 바탕으로 해설을 생성합니다. (외부 AI API 없이 규칙 기반으로 자동 생성되는 해설입니다.)',
+        aiBtn: "AI 해설 생성하기",
+        themeDark: "🌙 다크모드", themeLight: "☀ 화이트모드",
+        langToggle: "EN",
+        pillarYear:"년주", pillarMonth:"월주", pillarDay:"일주", pillarHour:"시주", hourUnknownPillar:"시간 미상",
+        sajuEmptyHint: "생년월일을 입력해주세요.",
+        matchEmptyHint: "두 사람의 생년월일을 모두 입력해주세요.",
+        aiEmptyHint: '먼저 "사주판 계산" 탭에서 사주를 계산해주세요.',
+        aiDisclaimer: "※ 외부 AI를 호출하지 않고, 계산된 사주 결과를 바탕으로 규칙 기반 문장을 자동 생성한 해설입니다.",
+        dayMasterShort: "일간"
+    },
+    en: {
+        subtitle: "Enter your date and time of birth to see your Four Pillars chart, today's fortune, and compatibility.",
+        tabSaju: "Saju Chart", tabToday: "Today's Fortune", tabMatch: "Compatibility", tabAi: "AI Reading",
+        sajuDateLabel: "Date of Birth (Solar)", sajuHourLabel: "Time of Birth", sajuBtn: "Calculate Chart",
+        sajuHint: "* Solar-term boundaries (e.g. the start of spring) are precisely calculated from the sun's ecliptic longitude. Since birth time is only collected in 2-hour blocks, there may be a slight margin of error when the exact boundary time is close.",
+        todayBirthLabel: "Date of Birth (optional, personalizes the result)", todayBtn: "Show Today's Fortune",
+        matchName1Label: "Name A", matchName1Ph: "Name (optional)", matchDate1Label: "Date of Birth A",
+        matchName2Label: "Name B", matchName2Ph: "Name (optional)", matchDate2Label: "Date of Birth B",
+        matchBtn: "Check Compatibility",
+        aiHint: 'First calculate your chart in the "Saju Chart" tab - this reading is generated from that result. (Generated with rule-based logic, without calling an external AI API.)',
+        aiBtn: "Generate AI Reading",
+        themeDark: "🌙 Dark", themeLight: "☀ Light",
+        langToggle: "한국어",
+        pillarYear:"Year", pillarMonth:"Month", pillarDay:"Day", pillarHour:"Hour", hourUnknownPillar:"Unknown",
+        sajuEmptyHint: "Please enter your date of birth.",
+        matchEmptyHint: "Please enter both people's dates of birth.",
+        aiEmptyHint: 'Please calculate your chart in the "Saju Chart" tab first.',
+        aiDisclaimer: "* This reading is auto-generated from your calculated chart using rule-based logic, without calling any external AI.",
+        dayMasterShort: "Day Master"
+    }
+};
+
+function t(key){ return UI_TEXT[LANG.current][key]; }
+
+const HOUR_OPTIONS = [
+    { value:"unknown", ko:"모름", en:"Unknown" },
+    { value:"0",  ko:"자시 (23:00~00:59)", en:"Ja-si (23:00-00:59)" },
+    { value:"2",  ko:"축시 (01:00~02:59)", en:"Chuk-si (01:00-02:59)" },
+    { value:"4",  ko:"인시 (03:00~04:59)", en:"In-si (03:00-04:59)" },
+    { value:"6",  ko:"묘시 (05:00~06:59)", en:"Myo-si (05:00-06:59)" },
+    { value:"8",  ko:"진시 (07:00~08:59)", en:"Jin-si (07:00-08:59)" },
+    { value:"10", ko:"사시 (09:00~10:59)", en:"Sa-si (09:00-10:59)" },
+    { value:"12", ko:"오시 (11:00~12:59)", en:"O-si (11:00-12:59)" },
+    { value:"14", ko:"미시 (13:00~14:59)", en:"Mi-si (13:00-14:59)" },
+    { value:"16", ko:"신시 (15:00~16:59)", en:"Sin-si (15:00-16:59)" },
+    { value:"18", ko:"유시 (17:00~18:59)", en:"Yu-si (17:00-18:59)" },
+    { value:"20", ko:"술시 (19:00~20:59)", en:"Sul-si (19:00-20:59)" },
+    { value:"22", ko:"해시 (21:00~22:59)", en:"Hae-si (21:00-22:59)" }
+];
+
+function renderHourOptions(){
+    const sel = document.getElementById("sajuHour");
+    const prev = sel.value;
+    sel.innerHTML = HOUR_OPTIONS.map(o => `<option value="${o.value}">${o[LANG.current]}</option>`).join("");
+    if(prev) sel.value = prev;
+}
+
+function applyStaticText(){
+    document.getElementById("subtitleText").textContent = t("subtitle");
+    document.getElementById("tabBtnSaju").textContent = t("tabSaju");
+    document.getElementById("tabBtnToday").textContent = t("tabToday");
+    document.getElementById("tabBtnMatch").textContent = t("tabMatch");
+    document.getElementById("tabBtnAi").textContent = t("tabAi");
+    document.getElementById("sajuDateLabel").textContent = t("sajuDateLabel");
+    document.getElementById("sajuHourLabel").textContent = t("sajuHourLabel");
+    document.getElementById("sajuBtn").textContent = t("sajuBtn");
+    document.getElementById("sajuHint").textContent = t("sajuHint");
+    document.getElementById("todayBirthLabel").textContent = t("todayBirthLabel");
+    document.getElementById("todayBtn").textContent = t("todayBtn");
+    document.getElementById("matchName1Label").textContent = t("matchName1Label");
+    document.getElementById("matchName1").placeholder = t("matchName1Ph");
+    document.getElementById("matchDate1Label").textContent = t("matchDate1Label");
+    document.getElementById("matchName2Label").textContent = t("matchName2Label");
+    document.getElementById("matchName2").placeholder = t("matchName2Ph");
+    document.getElementById("matchDate2Label").textContent = t("matchDate2Label");
+    document.getElementById("matchBtn").textContent = t("matchBtn");
+    document.getElementById("aiHint").textContent = t("aiHint");
+    document.getElementById("aiBtn").textContent = t("aiBtn");
+    document.getElementById("langToggle").textContent = t("langToggle");
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.getElementById("themeToggle").textContent = isDark ? t("themeLight") : t("themeDark");
+    document.getElementById("htmlRoot").lang = LANG.current;
+    renderHourOptions();
+}
+
+function toggleLang(){
+    LANG.current = LANG.current === "ko" ? "en" : "ko";
+    localStorage.setItem("saju-lang", LANG.current);
+    applyStaticText();
+    ["sajuResult","todayResult","matchResult","aiResult"].forEach(id=>{
+        document.getElementById(id).innerHTML = "";
+    });
+}
 
 function hashString(str){
     let h = 0;
@@ -509,8 +620,8 @@ function getMonthZhiIndex(y,m,d,hour){
     const inputJD = toJD(y,m,d, hour===null||hour===undefined ? 12 : hour);
     const terms = getYearTerms(y);
     let zhi = null;
-    for(const t of terms){
-        if(t.jd <= inputJD) zhi = t.zhi;
+    for(const term of terms){
+        if(term.jd <= inputJD) zhi = term.zhi;
     }
     return zhi===null ? 0 : zhi;
 }
@@ -550,7 +661,7 @@ function getHourGanZhi(dayGanIdx, hour){
 }
 
 function pillarText(ganIdx, jiIdx){
-    return CHEONGAN[ganIdx] + JIJI[jiIdx];
+    return LANG.current==="ko" ? (CHEONGAN[ganIdx]+JIJI[jiIdx]) : (CHEONGAN_ROMAN[ganIdx]+"-"+JIJI_ROMAN[jiIdx]);
 }
 
 function pillarOheng(ganIdx, jiIdx){
@@ -565,7 +676,7 @@ function calcSaju(){
     const box = document.getElementById("sajuResult");
 
     if(!dateVal){
-        box.innerHTML = '<p class="empty-hint">생년월일을 입력해주세요.</p>';
+        box.innerHTML = `<p class="empty-hint">${t("sajuEmptyHint")}</p>`;
         return;
     }
 
@@ -578,11 +689,11 @@ function calcSaju(){
     const timePillar = hour===null ? null : getHourGanZhi(day.ganIdx, hour);
 
     const pillars = [
-        { label:"년주", ganIdx:year.ganIdx, jiIdx:year.jiIdx },
-        { label:"월주", ganIdx:month.ganIdx, jiIdx:month.jiIdx },
-        { label:"일주", ganIdx:day.ganIdx, jiIdx:day.jiIdx },
+        { label:t("pillarYear"), ganIdx:year.ganIdx, jiIdx:year.jiIdx },
+        { label:t("pillarMonth"), ganIdx:month.ganIdx, jiIdx:month.jiIdx },
+        { label:t("pillarDay"), ganIdx:day.ganIdx, jiIdx:day.jiIdx },
     ];
-    if(timePillar) pillars.push({ label:"시주", ganIdx:timePillar.ganIdx, jiIdx:timePillar.jiIdx });
+    if(timePillar) pillars.push({ label:t("pillarHour"), ganIdx:timePillar.ganIdx, jiIdx:timePillar.jiIdx });
 
     const ohengCount = { "목":0, "화":0, "토":0, "금":0, "수":0 };
     pillars.forEach(p=>{
@@ -598,14 +709,14 @@ function calcSaju(){
         <div class="pillar-card">
             <div class="label">${p.label}</div>
             <div class="gz">${pillarText(p.ganIdx,p.jiIdx)}</div>
-            <div class="oheng" style="background:${OHENG_COLOR[g]}">${g}</div>
+            <div class="oheng" style="background:${OHENG_COLOR[g]}">${ohengLabel(g)}</div>
         </div>`;
     });
     if(!timePillar){
         html += `
         <div class="pillar-card">
-            <div class="label">시주</div>
-            <div class="gz" style="font-size:14px;color:var(--text-body)">시간 미상</div>
+            <div class="label">${t("pillarHour")}</div>
+            <div class="gz" style="font-size:14px;color:var(--text-body)">${t("hourUnknownPillar")}</div>
         </div>`;
     }
     html += '</div>';
@@ -616,7 +727,7 @@ function calcSaju(){
         const pct = Math.round((c/(pillars.length*2))*100);
         html += `
         <div class="oheng-row">
-            <div class="name">${el}</div>
+            <div class="name">${ohengLabel(el)}</div>
             <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${OHENG_COLOR[el]}"></div></div>
             <div class="count">${c}</div>
         </div>`;
@@ -626,64 +737,129 @@ function calcSaju(){
     box.innerHTML = html;
 
     lastSajuResult = {
-        dateVal, hour,
         dayGanIdx: day.ganIdx,
-        dayGan: CHEONGAN[day.ganIdx],
-        dayGanOheng: CHEONGAN_OHENG[day.ganIdx],
-        ohengCount,
-        pillarsText: pillars.map(p=>pillarText(p.ganIdx,p.jiIdx))
+        ohengCount
     };
 }
 
-const FORTUNE_TEXTS = {
-    "총운": [
-        "차분하게 하루를 시작하면 예상보다 좋은 흐름을 만날 수 있는 날입니다.",
-        "작은 변화가 큰 기회로 이어질 수 있으니 주변을 잘 살펴보세요.",
-        "무리한 결정보다는 신중한 선택이 유리한 하루입니다.",
-        "그동안 미뤄둔 일을 처리하기 좋은 흐름이 찾아옵니다.",
-        "주변 사람의 조언이 뜻밖의 도움이 되는 날입니다.",
-        "평소보다 직감이 예리해지는 시기이니 믿고 따라가도 좋습니다.",
-        "서두르지 않고 하나씩 처리하면 무난하게 흘러가는 하루입니다.",
-        "새로운 시도를 해보기에 나쁘지 않은 기운이 감돕니다.",
-        "마음의 여유를 가지면 뜻밖의 좋은 소식이 들려올 수 있습니다.",
-        "오늘은 평소의 리듬을 지키는 것이 가장 큰 행운입니다."
-    ],
-    "애정운": [
-        "솔직한 대화가 관계를 한층 더 가깝게 만들어줍니다.",
-        "혼자만의 시간을 갖는 것도 관계에 도움이 되는 날입니다.",
-        "작은 배려가 상대에게 크게 다가가는 하루입니다.",
-        "새로운 인연의 기운이 은은하게 감지됩니다.",
-        "감정 기복을 조절하면 관계가 한결 부드러워집니다.",
-        "먼저 다가가는 용기가 좋은 결과로 이어질 수 있습니다.",
-        "지나간 인연에 미련보다는 현재에 집중하는 것이 좋습니다.",
-        "표현하지 않으면 전해지지 않는 하루, 마음을 표현해보세요."
-    ],
-    "재물운": [
-        "충동적인 지출은 피하고 계획적인 소비가 필요한 날입니다.",
-        "생각지 못한 곳에서 작은 이득이 생길 수 있습니다.",
-        "투자보다는 저축에 집중하는 것이 유리한 흐름입니다.",
-        "동료나 지인과의 금전 거래는 신중히 접근하세요.",
-        "꾸준한 노력이 재물운으로 서서히 이어지는 시기입니다.",
-        "예상치 못한 지출이 생길 수 있으니 여유 자금을 준비하세요.",
-        "정보를 잘 살피면 좋은 기회를 포착할 수 있습니다."
-    ],
-    "건강운": [
-        "무리한 일정보다는 충분한 휴식이 필요한 하루입니다.",
-        "가벼운 산책이나 스트레칭이 컨디션 관리에 도움이 됩니다.",
-        "과식이나 과음은 피하는 것이 좋은 시기입니다.",
-        "수면의 질을 높이면 전반적인 컨디션이 좋아집니다.",
-        "스트레스 관리가 오늘의 가장 중요한 건강 포인트입니다.",
-        "몸의 신호에 귀 기울이면 큰 탈 없이 지나가는 하루입니다."
-    ],
-    "직장운": [
-        "협업에서 좋은 성과가 나올 수 있는 흐름입니다.",
-        "묵묵히 해온 노력을 주변에서 알아봐 주는 날입니다.",
-        "새로운 업무 제안이 들어올 수 있으니 열린 마음을 가지세요.",
-        "동료와의 의견 차이는 대화로 잘 풀어나갈 수 있습니다.",
-        "계획을 재정비하기 좋은 시기이니 일정을 점검해보세요.",
-        "작은 실수에 너무 얽매이지 않아도 되는 하루입니다."
-    ]
+const CATEGORY_KEYS = ["총운","애정운","재물운","건강운","직장운"];
+const CATEGORY_LABEL = {
+    "총운": { ko:"총운", en:"Overall" },
+    "애정운": { ko:"애정운", en:"Love" },
+    "재물운": { ko:"재물운", en:"Money" },
+    "건강운": { ko:"건강운", en:"Health" },
+    "직장운": { ko:"직장운", en:"Work" }
 };
+
+const FORTUNE_TEXTS = {
+    ko: {
+        "총운": [
+            "차분하게 하루를 시작하면 예상보다 좋은 흐름을 만날 수 있는 날입니다.",
+            "작은 변화가 큰 기회로 이어질 수 있으니 주변을 잘 살펴보세요.",
+            "무리한 결정보다는 신중한 선택이 유리한 하루입니다.",
+            "그동안 미뤄둔 일을 처리하기 좋은 흐름이 찾아옵니다.",
+            "주변 사람의 조언이 뜻밖의 도움이 되는 날입니다.",
+            "평소보다 직감이 예리해지는 시기이니 믿고 따라가도 좋습니다.",
+            "서두르지 않고 하나씩 처리하면 무난하게 흘러가는 하루입니다.",
+            "새로운 시도를 해보기에 나쁘지 않은 기운이 감돕니다.",
+            "마음의 여유를 가지면 뜻밖의 좋은 소식이 들려올 수 있습니다.",
+            "오늘은 평소의 리듬을 지키는 것이 가장 큰 행운입니다."
+        ],
+        "애정운": [
+            "솔직한 대화가 관계를 한층 더 가깝게 만들어줍니다.",
+            "혼자만의 시간을 갖는 것도 관계에 도움이 되는 날입니다.",
+            "작은 배려가 상대에게 크게 다가가는 하루입니다.",
+            "새로운 인연의 기운이 은은하게 감지됩니다.",
+            "감정 기복을 조절하면 관계가 한결 부드러워집니다.",
+            "먼저 다가가는 용기가 좋은 결과로 이어질 수 있습니다.",
+            "지나간 인연에 미련보다는 현재에 집중하는 것이 좋습니다.",
+            "표현하지 않으면 전해지지 않는 하루, 마음을 표현해보세요."
+        ],
+        "재물운": [
+            "충동적인 지출은 피하고 계획적인 소비가 필요한 날입니다.",
+            "생각지 못한 곳에서 작은 이득이 생길 수 있습니다.",
+            "투자보다는 저축에 집중하는 것이 유리한 흐름입니다.",
+            "동료나 지인과의 금전 거래는 신중히 접근하세요.",
+            "꾸준한 노력이 재물운으로 서서히 이어지는 시기입니다.",
+            "예상치 못한 지출이 생길 수 있으니 여유 자금을 준비하세요.",
+            "정보를 잘 살피면 좋은 기회를 포착할 수 있습니다."
+        ],
+        "건강운": [
+            "무리한 일정보다는 충분한 휴식이 필요한 하루입니다.",
+            "가벼운 산책이나 스트레칭이 컨디션 관리에 도움이 됩니다.",
+            "과식이나 과음은 피하는 것이 좋은 시기입니다.",
+            "수면의 질을 높이면 전반적인 컨디션이 좋아집니다.",
+            "스트레스 관리가 오늘의 가장 중요한 건강 포인트입니다.",
+            "몸의 신호에 귀 기울이면 큰 탈 없이 지나가는 하루입니다."
+        ],
+        "직장운": [
+            "협업에서 좋은 성과가 나올 수 있는 흐름입니다.",
+            "묵묵히 해온 노력을 주변에서 알아봐 주는 날입니다.",
+            "새로운 업무 제안이 들어올 수 있으니 열린 마음을 가지세요.",
+            "동료와의 의견 차이는 대화로 잘 풀어나갈 수 있습니다.",
+            "계획을 재정비하기 좋은 시기이니 일정을 점검해보세요.",
+            "작은 실수에 너무 얽매이지 않아도 되는 하루입니다."
+        ]
+    },
+    en: {
+        "총운": [
+            "Starting the day calmly may lead to a better flow than expected.",
+            "A small change could turn into a big opportunity, so keep an eye on your surroundings.",
+            "A cautious choice serves you better than a rash decision today.",
+            "A good flow arrives for tackling tasks you've been putting off.",
+            "Advice from someone close could turn out to be unexpectedly helpful.",
+            "Your intuition is sharper than usual, so it's a good day to trust it.",
+            "Handling things one at a time without rushing keeps the day running smoothly.",
+            "The energy favors trying something new today.",
+            "Staying relaxed may bring unexpectedly good news.",
+            "Sticking to your usual rhythm is today's biggest source of luck."
+        ],
+        "애정운": [
+            "An honest conversation brings you closer to your partner.",
+            "Spending some time alone can actually help the relationship today.",
+            "A small gesture of consideration means a lot to the other person today.",
+            "A subtle sign of a new connection is in the air.",
+            "Keeping your emotions steady smooths things out in your relationship.",
+            "Taking the first step could lead to a good outcome.",
+            "Focus on the present rather than lingering on a past relationship.",
+            "Feelings unspoken go unnoticed today - try expressing your heart."
+        ],
+        "재물운": [
+            "Avoid impulsive spending and stick to a plan today.",
+            "A small gain may come from an unexpected source.",
+            "Saving is favored over investing in the current flow.",
+            "Be cautious with money matters involving colleagues or friends.",
+            "Steady effort is gradually paying off financially.",
+            "An unexpected expense may come up, so keep some funds in reserve.",
+            "Paying close attention to information could reveal a good opportunity."
+        ],
+        "건강운": [
+            "Rest is more important than a packed schedule today.",
+            "A light walk or stretching helps keep your condition in check.",
+            "It's best to avoid overeating or drinking too much.",
+            "Better sleep quality improves your overall condition.",
+            "Managing stress is today's key health point.",
+            "Listening to your body's signals helps you get through the day without trouble."
+        ],
+        "직장운": [
+            "Collaboration is likely to bring good results.",
+            "Quiet, steady effort gets noticed by those around you today.",
+            "Stay open-minded, as a new work proposal may come your way.",
+            "Differences with a coworker can be resolved through conversation.",
+            "A good time to reorganize your plans - review your schedule.",
+            "No need to dwell too much on small mistakes today."
+        ]
+    }
+};
+
+const MONTH_NAMES_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function formatTodayDate(today, personalized){
+    if(LANG.current==="ko"){
+        return `${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일 기준${personalized ? " (개인화 적용됨)" : ""}`;
+    }
+    return `Based on ${MONTH_NAMES_EN[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}${personalized ? " (personalized)" : ""}`;
+}
 
 function calcToday(){
     const birthVal = document.getElementById("todayBirth").value;
@@ -693,15 +869,15 @@ function calcToday(){
     const dateKey = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
     const seedStr = birthVal ? dateKey + "_" + birthVal : dateKey;
 
-    let html = `<p class="hint">${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일 기준${birthVal ? " (개인화 적용됨)" : ""}</p>`;
+    let html = `<p class="hint">${formatTodayDate(today, !!birthVal)}</p>`;
     html += '<div class="fortune-grid">';
 
-    Object.keys(FORTUNE_TEXTS).forEach((category)=>{
-        const arr = FORTUNE_TEXTS[category];
+    CATEGORY_KEYS.forEach((category)=>{
+        const arr = FORTUNE_TEXTS[LANG.current][category];
         const idx = hashString(seedStr + "_" + category) % arr.length;
         html += `
         <div class="fortune-card">
-            <h3>${category}</h3>
+            <h3>${CATEGORY_LABEL[category][LANG.current]}</h3>
             <p>${arr[idx]}</p>
         </div>`;
     });
@@ -718,7 +894,6 @@ const OHENG_RELATION = {
     "수":{ generates:"목", generatedBy:"금", overcomes:"화", overcomeBy:"토" }
 };
 
-const JIJI_ANIMAL = ["쥐","소","호랑이","토끼","용","뱀","말","양","원숭이","닭","개","돼지"];
 const SAMHAP_GROUPS = [ [11,3,7,"목"], [2,6,10,"화"], [5,9,1,"금"], [8,0,4,"수"] ];
 const YUKHAP_PAIRS = [[0,1],[2,11],[3,10],[4,9],[5,8],[6,7]];
 const CHUNG_PAIRS = [[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]];
@@ -749,7 +924,7 @@ function calcMatch(){
     const box = document.getElementById("matchResult");
 
     if(!d1 || !d2){
-        box.innerHTML = '<p class="empty-hint">두 사람의 생년월일을 모두 입력해주세요.</p>';
+        box.innerHTML = `<p class="empty-hint">${t("matchEmptyHint")}</p>`;
         return;
     }
 
@@ -762,48 +937,70 @@ function calcMatch(){
     const el2 = CHEONGAN_OHENG[day2.ganIdx];
 
     let baseScore, relationText;
+    const isKo = LANG.current==="ko";
     if(el1===el2){
         baseScore = 78;
-        relationText = `두 분 모두 일간이 ${el1} 기운으로, 서로 비슷한 기질을 가진 편안한 관계입니다.`;
+        relationText = isKo
+            ? `두 분 모두 일간이 ${el1} 기운으로, 서로 비슷한 기질을 가진 편안한 관계입니다.`
+            : `Both of you share the same Day Master element (${ohengLabel(el1)}), giving you a comfortable, similar temperament.`;
     } else if(OHENG_RELATION[el1].generates===el2 || OHENG_RELATION[el2].generates===el1){
         baseScore = 90;
-        relationText = `${el1}${josaWaGwa(el1)} ${el2}는 서로 기운을 북돋아주는 상생 관계로, 함께 있을 때 시너지가 좋은 편입니다.`;
+        relationText = isKo
+            ? `${el1}${josaWaGwa(el1)} ${el2}는 서로 기운을 북돋아주는 상생 관계로, 함께 있을 때 시너지가 좋은 편입니다.`
+            : `${ohengLabel(el1)} and ${ohengLabel(el2)} nurture each other in a generating relationship, creating great synergy together.`;
     } else {
         baseScore = 58;
-        relationText = `${el1}${josaWaGwa(el1)} ${el2}는 서로 다른 방향으로 부딪히는 상극 관계로, 이해와 배려가 관계의 핵심입니다.`;
+        relationText = isKo
+            ? `${el1}${josaWaGwa(el1)} ${el2}는 서로 다른 방향으로 부딪히는 상극 관계로, 이해와 배려가 관계의 핵심입니다.`
+            : `${ohengLabel(el1)} and ${ohengLabel(el2)} clash in a controlling relationship, so understanding and consideration are key.`;
     }
 
     const year1 = getYearGanZhi(y1,m1,dd1,12);
     const year2 = getYearGanZhi(y2,m2,dd2,12);
     const ji = getJiRelation(year1.jiIdx, year2.jiIdx);
+    const a1 = animalLabel(year1.jiIdx), a2 = animalLabel(year2.jiIdx);
 
     let jiScore, jiText;
     if(ji.type==="samhap"){
         jiScore = 12;
-        jiText = `띠(${JIJI_ANIMAL[year1.jiIdx]}·${JIJI_ANIMAL[year2.jiIdx]})가 삼합을 이루어 ${ji.element} 기운으로 강하게 뭉치는 궁합입니다.`;
+        jiText = isKo
+            ? `띠(${a1}·${a2})가 삼합을 이루어 ${ji.element} 기운으로 강하게 뭉치는 궁합입니다.`
+            : `Your zodiac signs (${a1} & ${a2}) form a Triple Harmony, bonding strongly through ${ohengLabel(ji.element)} energy.`;
     } else if(ji.type==="yukhap"){
         jiScore = 9;
-        jiText = `띠(${JIJI_ANIMAL[year1.jiIdx]}·${JIJI_ANIMAL[year2.jiIdx]})가 육합 관계로, 서로 자연스럽게 끌리는 편안한 인연입니다.`;
+        jiText = isKo
+            ? `띠(${a1}·${a2})가 육합 관계로, 서로 자연스럽게 끌리는 편안한 인연입니다.`
+            : `Your zodiac signs (${a1} & ${a2}) form a Six Harmony pair, drawn naturally and comfortably to each other.`;
     } else if(ji.type==="chung"){
         jiScore = -13;
-        jiText = `띠(${JIJI_ANIMAL[year1.jiIdx]}·${JIJI_ANIMAL[year2.jiIdx]})가 충(沖) 관계로, 서로 부딪히기 쉬워 배려와 조율이 특히 중요합니다.`;
+        jiText = isKo
+            ? `띠(${a1}·${a2})가 충(沖) 관계로, 서로 부딪히기 쉬워 배려와 조율이 특히 중요합니다.`
+            : `Your zodiac signs (${a1} & ${a2}) are in a Clash relationship, so you may butt heads easily - consideration and coordination matter.`;
     } else if(ji.type==="same"){
         jiScore = 4;
-        jiText = `두 분 모두 같은 띠(${JIJI_ANIMAL[year1.jiIdx]})로, 서로를 잘 이해하는 편입니다.`;
+        jiText = isKo
+            ? `두 분 모두 같은 띠(${a1})로, 서로를 잘 이해하는 편입니다.`
+            : `You share the same zodiac sign (${a1}), which helps you understand each other well.`;
     } else {
         jiScore = 0;
-        jiText = `띠(${JIJI_ANIMAL[year1.jiIdx]}·${JIJI_ANIMAL[year2.jiIdx]}) 사이에 특별한 합충 관계는 없어 무난한 편입니다.`;
+        jiText = isKo
+            ? `띠(${a1}·${a2}) 사이에 특별한 합충 관계는 없어 무난한 편입니다.`
+            : `Your zodiac signs (${a1} & ${a2}) have no special harmony or clash relationship - a fairly neutral match.`;
     }
 
     const jitter = hashString(d1+"_"+d2) % 9 - 4;
     const score = Math.max(35, Math.min(99, baseScore + jiScore + jitter));
 
+    const header = isKo
+        ? `<b>${n1}</b>(일간 ${ganLabel(day1.ganIdx)}·${el1}, ${a1}띠) &nbsp;×&nbsp; <b>${n2}</b>(일간 ${ganLabel(day2.ganIdx)}·${el2}, ${a2}띠)`
+        : `<b>${n1}</b> (${t("dayMasterShort")}: ${ganLabel(day1.ganIdx)}/${ohengLabel(el1)}, Year of the ${a1}) &nbsp;×&nbsp; <b>${n2}</b> (${t("dayMasterShort")}: ${ganLabel(day2.ganIdx)}/${ohengLabel(el2)}, Year of the ${a2})`;
+
     const html = `
     <div class="compat-score">
-        <div class="num">${score}<span>점</span></div>
+        <div class="num">${score}${isKo ? "<span>점</span>" : "<span>%</span>"}</div>
     </div>
     <div class="result-box">
-        <b>${n1}</b>(일간 ${CHEONGAN[day1.ganIdx]}·${el1}, ${JIJI_ANIMAL[year1.jiIdx]}띠) &nbsp;×&nbsp; <b>${n2}</b>(일간 ${CHEONGAN[day2.ganIdx]}·${el2}, ${JIJI_ANIMAL[year2.jiIdx]}띠)<br><br>
+        ${header}<br><br>
         ${relationText}<br><br>
         ${jiText}
     </div>`;
@@ -811,43 +1008,78 @@ function calcMatch(){
 }
 
 const DAYMASTER_DESC = {
-    "갑":"큰 나무처럼 곧고 진취적이며, 앞장서서 일을 이끄는 리더십을 지녔습니다.",
-    "을":"부드러운 풀과 꽃처럼 유연하고 적응력이 뛰어나며, 섬세한 감성을 지녔습니다.",
-    "병":"태양처럼 밝고 열정적이며, 주변에 활력을 불어넣는 힘을 가졌습니다.",
-    "정":"은은한 촛불처럼 따뜻하고 세심하며, 사람을 배려하는 마음이 깊습니다.",
-    "무":"큰 산처럼 묵직하고 믿음직스러우며, 흔들리지 않는 안정감을 지녔습니다.",
-    "기":"기름진 땅처럼 포용력이 크고 성실하며, 주변을 두루 챙기는 편입니다.",
-    "경":"제련된 쇠처럼 강직하고 결단력이 있으며, 원칙을 중시하는 성향입니다.",
-    "신":"보석처럼 예리하고 세련되며, 완성도를 중요하게 여기는 성격입니다.",
-    "임":"큰 강물처럼 지혜롭고 포용력이 넓으며, 변화에 유연하게 대처합니다.",
-    "계":"맑은 이슬비처럼 섬세하고 통찰력이 있으며, 조용히 내실을 다지는 편입니다."
+    ko: {
+        "갑":"큰 나무처럼 곧고 진취적이며, 앞장서서 일을 이끄는 리더십을 지녔습니다.",
+        "을":"부드러운 풀과 꽃처럼 유연하고 적응력이 뛰어나며, 섬세한 감성을 지녔습니다.",
+        "병":"태양처럼 밝고 열정적이며, 주변에 활력을 불어넣는 힘을 가졌습니다.",
+        "정":"은은한 촛불처럼 따뜻하고 세심하며, 사람을 배려하는 마음이 깊습니다.",
+        "무":"큰 산처럼 묵직하고 믿음직스러우며, 흔들리지 않는 안정감을 지녔습니다.",
+        "기":"기름진 땅처럼 포용력이 크고 성실하며, 주변을 두루 챙기는 편입니다.",
+        "경":"제련된 쇠처럼 강직하고 결단력이 있으며, 원칙을 중시하는 성향입니다.",
+        "신":"보석처럼 예리하고 세련되며, 완성도를 중요하게 여기는 성격입니다.",
+        "임":"큰 강물처럼 지혜롭고 포용력이 넓으며, 변화에 유연하게 대처합니다.",
+        "계":"맑은 이슬비처럼 섬세하고 통찰력이 있으며, 조용히 내실을 다지는 편입니다."
+    },
+    en: {
+        "갑":"Like a tall tree, you are upright and forward-driving, with the leadership to take the lead.",
+        "을":"Like soft grass and flowers, you are flexible and highly adaptable, with delicate sensitivity.",
+        "병":"Like the sun, you are bright and passionate, bringing energy to those around you.",
+        "정":"Like a gentle candle flame, you are warm and considerate, with deep care for others.",
+        "무":"Like a great mountain, you are steady and dependable, with an unshakable sense of stability.",
+        "기":"Like fertile soil, you are broadly accepting and diligent, looking after those around you.",
+        "경":"Like refined metal, you are firm and decisive, valuing principle.",
+        "신":"Like a gemstone, you are sharp and refined, caring deeply about doing things well.",
+        "임":"Like a great river, you are wise and broadly accepting, adapting flexibly to change.",
+        "계":"Like clear drizzle, you are delicate and insightful, quietly building substance."
+    }
 };
 
 const OHENG_TRAIT = {
-    "목":"성장 지향적이고 추진력이 강한 기운이 두드러집니다.",
-    "화":"열정적이고 표현력이 풍부한 기운이 두드러집니다.",
-    "토":"안정적이고 신뢰를 중시하는 기운이 두드러집니다.",
-    "금":"원칙적이고 결단력 있는 기운이 두드러집니다.",
-    "수":"지혜롭고 유연한 사고를 중시하는 기운이 두드러집니다."
+    ko: {
+        "목":"성장 지향적이고 추진력이 강한 기운이 두드러집니다.",
+        "화":"열정적이고 표현력이 풍부한 기운이 두드러집니다.",
+        "토":"안정적이고 신뢰를 중시하는 기운이 두드러집니다.",
+        "금":"원칙적이고 결단력 있는 기운이 두드러집니다.",
+        "수":"지혜롭고 유연한 사고를 중시하는 기운이 두드러집니다."
+    },
+    en: {
+        "목":"A growth-oriented, strongly driven energy stands out.",
+        "화":"A passionate, highly expressive energy stands out.",
+        "토":"A stable energy that values trust stands out.",
+        "금":"A principled, decisive energy stands out.",
+        "수":"A wise energy that values flexible thinking stands out."
+    }
 };
 
 const OHENG_LACK = {
-    "목":"성장과 추진력을 상징하는 목(木) 기운이 부족하니, 새로운 도전을 시도하는 연습이 도움이 됩니다.",
-    "화":"표현과 열정을 상징하는 화(火) 기운이 부족하니, 감정을 적극적으로 표현해보는 것이 좋습니다.",
-    "토":"안정과 신뢰를 상징하는 토(土) 기운이 부족하니, 꾸준함과 일관성을 기르는 것이 도움이 됩니다.",
-    "금":"결단과 원칙을 상징하는 금(金) 기운이 부족하니, 우선순위를 명확히 정하는 습관이 좋습니다.",
-    "수":"지혜와 유연함을 상징하는 수(水) 기운이 부족하니, 다양한 관점을 받아들이는 여유가 도움이 됩니다."
+    ko: {
+        "목":"성장과 추진력을 상징하는 목(木) 기운이 부족하니, 새로운 도전을 시도하는 연습이 도움이 됩니다.",
+        "화":"표현과 열정을 상징하는 화(火) 기운이 부족하니, 감정을 적극적으로 표현해보는 것이 좋습니다.",
+        "토":"안정과 신뢰를 상징하는 토(土) 기운이 부족하니, 꾸준함과 일관성을 기르는 것이 도움이 됩니다.",
+        "금":"결단과 원칙을 상징하는 금(金) 기운이 부족하니, 우선순위를 명확히 정하는 습관이 좋습니다.",
+        "수":"지혜와 유연함을 상징하는 수(水) 기운이 부족하니, 다양한 관점을 받아들이는 여유가 도움이 됩니다."
+    },
+    en: {
+        "목":"Wood energy, which symbolizes growth and drive, is lacking - practicing new challenges would help.",
+        "화":"Fire energy, which symbolizes expression and passion, is lacking - try expressing your emotions more actively.",
+        "토":"Earth energy, which symbolizes stability and trust, is lacking - building consistency and steadiness would help.",
+        "금":"Metal energy, which symbolizes decisiveness and principle, is lacking - clarifying your priorities would help.",
+        "수":"Water energy, which symbolizes wisdom and flexibility, is lacking - staying open to different perspectives would help."
+    }
 };
 
 function calcAiExplain(){
     const box = document.getElementById("aiResult");
 
     if(!lastSajuResult){
-        box.innerHTML = '<p class="empty-hint">먼저 "사주판 계산" 탭에서 사주를 계산해주세요.</p>';
+        box.innerHTML = `<p class="empty-hint">${t("aiEmptyHint")}</p>`;
         return;
     }
 
-    const { dayGan, dayGanOheng, ohengCount } = lastSajuResult;
+    const { dayGanIdx, ohengCount } = lastSajuResult;
+    const dayGanKey = CHEONGAN[dayGanIdx];
+    const dayGanOheng = CHEONGAN_OHENG[dayGanIdx];
+    const isKo = LANG.current==="ko";
 
     let dominant = "목";
     let maxC = -1;
@@ -860,14 +1092,22 @@ function calcAiExplain(){
         if(ohengCount[el]===0){ lack = el; break; }
     }
 
-    const paragraph = `
-        당신의 일간(日干)은 <b>${dayGan}(${dayGanOheng})</b>입니다. ${DAYMASTER_DESC[dayGan]}<br><br>
-        사주 전체에서는 <b>${dominant}</b> 기운이 가장 강하게 나타나, ${OHENG_TRAIT[dominant]}<br><br>
-        ${lack ? OHENG_LACK[lack] : "오행이 비교적 고르게 분포되어 있어, 상황에 따라 균형 잡힌 대응이 가능한 사주입니다."}
+    const balanced = isKo
+        ? "오행이 비교적 고르게 분포되어 있어, 상황에 따라 균형 잡힌 대응이 가능한 사주입니다."
+        : "The five elements are fairly evenly distributed, giving you a balanced chart that can adapt to different situations.";
+
+    const paragraph = isKo ? `
+        당신의 일간(日干)은 <b>${ganLabel(dayGanIdx)}(${ohengLabel(dayGanOheng)})</b>입니다. ${DAYMASTER_DESC.ko[dayGanKey]}<br><br>
+        사주 전체에서는 <b>${ohengLabel(dominant)}</b> 기운이 가장 강하게 나타나, ${OHENG_TRAIT.ko[dominant]}<br><br>
+        ${lack ? OHENG_LACK.ko[lack] : balanced}
+    ` : `
+        Your Day Master is <b>${ganLabel(dayGanIdx)} (${ohengLabel(dayGanOheng)})</b>. ${DAYMASTER_DESC.en[dayGanKey]}<br><br>
+        Across your whole chart, <b>${ohengLabel(dominant)}</b> energy stands out the most - ${OHENG_TRAIT.en[dominant]}<br><br>
+        ${lack ? OHENG_LACK.en[lack] : balanced}
     `;
 
     box.innerHTML = `
-        <p class="hint">※ 외부 AI를 호출하지 않고, 계산된 사주 결과를 바탕으로 규칙 기반 문장을 자동 생성한 해설입니다.</p>
+        <p class="hint">${t("aiDisclaimer")}</p>
         <div class="result-box">${paragraph}</div>
     `;
 }
@@ -883,7 +1123,7 @@ function switchTab(tab){
 
 function applyTheme(theme){
     document.documentElement.setAttribute("data-theme", theme);
-    document.getElementById("themeToggle").textContent = theme === "dark" ? "☀ 화이트모드" : "🌙 다크모드";
+    document.getElementById("themeToggle").textContent = theme === "dark" ? t("themeLight") : t("themeDark");
     localStorage.setItem("saju-theme", theme);
 }
 
@@ -892,8 +1132,12 @@ function toggleTheme(){
     applyTheme(current === "dark" ? "light" : "dark");
 }
 
+const savedLang = localStorage.getItem("saju-lang");
+if(savedLang === "ko" || savedLang === "en") LANG.current = savedLang;
+
 const savedTheme = localStorage.getItem("saju-theme");
 const systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+applyStaticText();
 applyTheme(savedTheme || (systemPrefersDark ? "dark" : "light"));
 
 </script>
