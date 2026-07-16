@@ -767,7 +767,7 @@ function calcMatch(){
         relationText = `두 분 모두 일간이 ${el1} 기운으로, 서로 비슷한 기질을 가진 편안한 관계입니다.`;
     } else if(OHENG_RELATION[el1].generates===el2 || OHENG_RELATION[el2].generates===el1){
         baseScore = 90;
-        relationText = `${el1}와 ${el2}는 서로 기운을 북돋아주는 상생 관계로, 함께 있을 때 시너지가 좋은 편입니다.`;
+        relationText = `${el1}${josaWaGwa(el1)} ${el2}는 서로 기운을 북돋아주는 상생 관계로, 함께 있을 때 시너지가 좋은 편입니다.`;
     } else {
         baseScore = 58;
         relationText = `${el1}와 ${el2}는 서로 다른 방향으로 부딪히는 상극 관계로, 이해와 배려가 관계의 핵심입니다.`;
