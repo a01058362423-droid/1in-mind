@@ -794,8 +794,8 @@ const RELATION_TEMPLATES = {"ko": {"same": "두 분 모두 일간이 {EL1} 기�
 function calcMatch(){
     const d1 = document.getElementById("matchDate1").value;
     const d2 = document.getElementById("matchDate2").value;
-    const n1 = document.getElementById("matchName1").value || "A";
-    const n2 = document.getElementById("matchName2").value || "B";
+    const n1 = escapeHtml(document.getElementById("matchName1").value || "A");
+    const n2 = escapeHtml(document.getElementById("matchName2").value || "B");
     const box = document.getElementById("matchResult");
 
     if(!d1 || !d2){
